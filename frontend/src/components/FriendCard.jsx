@@ -32,21 +32,6 @@ const FriendCard = ({ friend }) => {
             <MessageSquareIcon className="size-4" />
             Chat
           </Link>
-          <Link
-            to={`/call?friendId=${friend._id}`}
-            className="btn btn-outline btn-sm flex-1 gap-1"
-            title="Call"
-          >
-            <PhoneCallIcon className="size-4" />
-            Call
-          </Link>
-          <Link
-            to={`/chat/${friend._id}`}
-            className="btn btn-ghost btn-sm btn-square"
-            title="View Profile"
-          >
-            <UserIcon className="size-4" />
-          </Link>
         </div>
       </div>
     </div>
