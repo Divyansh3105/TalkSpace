@@ -10,6 +10,11 @@ export const login = async (loginData) => {
   return response.data;
 };
 
+export const googleLogin = async (token) => {
+  const response = await axiosInstance.post("/auth/google", { token });
+  return response.data;
+};
+
 export const logout = async () => {
   const response = await axiosInstance.post("/auth/logout");
   return response.data;

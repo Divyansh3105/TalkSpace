@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Link } from "react-router";
+import { GoogleLogin } from "@react-oauth/google";
 import useSignup from "../hooks/useSignup.js";
+import useGoogleAuth from "../hooks/useGoogleAuth.js";
 
 const SignUpPage = () => {
   const [signupData, setSignupData] = useState({
@@ -10,6 +12,7 @@ const SignUpPage = () => {
   });
 
   const { isPending, error, signupMutation } = useSignup();
+  const { googleAuthMutation } = useGoogleAuth();
 
   const handleSignup = (e) => {
     e.preventDefault();
@@ -150,6 +153,20 @@ const SignUpPage = () => {
                     "Create Account"
                   )}
                 </button>
+
+                <div className="divider text-sm opacity-70">OR</div>
+
+                <div className="w-full flex justify-center">
+                  <GoogleLogin
+                    onSuccess={(credentialResponse) => {
+                      googleAuthMutation(credentialResponse.credential);
+                    }}
+                    onError={() => {
+                      console.log("Google Login Failed");
+                    }}
+                    theme="filled_black"
+                  />
+                </div>
 
                 <div className="text-center mt-4">
                   <p className="text-sm">
