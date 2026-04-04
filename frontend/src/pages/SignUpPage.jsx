@@ -156,7 +156,7 @@ const SignUpPage = () => {
 
                 <div className="divider text-sm opacity-70">OR</div>
 
-                <div className="w-full flex justify-center">
+                <div className="w-full flex justify-center [&_iframe]:!w-full">
                   <GoogleLogin
                     onSuccess={(credentialResponse) => {
                       googleAuthMutation(credentialResponse.credential);
@@ -165,6 +165,10 @@ const SignUpPage = () => {
                       console.log("Google Login Failed");
                     }}
                     theme="filled_black"
+                    size="large"
+                    text="continue_with"
+                    shape="rectangular"
+                    width="100%"
                   />
                 </div>
 
