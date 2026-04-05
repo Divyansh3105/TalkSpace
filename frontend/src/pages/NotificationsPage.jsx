@@ -7,6 +7,7 @@ import {
   UserCheckIcon,
 } from "lucide-react";
 import NoNotificationsFound from "../components/NoNotificationsFound";
+import NotificationSkeleton from "../components/skeletons/NotificationSkeleton";
 
 const NotificationsPage = () => {
   const queryClient = useQueryClient();
@@ -35,8 +36,10 @@ const NotificationsPage = () => {
         </h1>
 
         {isLoading ? (
-          <div className="flex justify-center py-12">
-            <span className="loading loading-spinner loading-lg"></span>
+          <div className="space-y-3">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <NotificationSkeleton key={i} />
+            ))}
           </div>
         ) : (
           <>

@@ -17,6 +17,8 @@ import {
 import FriendCard from "../components/FriendCard";
 import NoFriendsFound from "../components/NoFriendsFound";
 import useAuthUser from "../hooks/useAuthUser";
+import FriendCardSkeleton from "../components/skeletons/FriendCardSkeleton";
+import UserCardSkeleton from "../components/skeletons/UserCardSkeleton";
 
 const HomePage = () => {
   const queryClient = useQueryClient();
@@ -145,8 +147,10 @@ const HomePage = () => {
         </div>
 
         {loadingFriends ? (
-          <div className="flex justify-center py-12">
-            <span className="loading loading-spinner loading-lg" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <FriendCardSkeleton key={i} />
+            ))}
           </div>
         ) : filteredFriends.length === 0 ? (
           query ? (
@@ -181,8 +185,10 @@ const HomePage = () => {
           </div>
 
           {loadingUsers ? (
-            <div className="flex justify-center py-12">
-              <span className="loading loading-spinner loading-lg" />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <UserCardSkeleton key={i} />
+              ))}
             </div>
           ) : filteredRecommendedUsers.length === 0 ? (
             <div className="card bg-base-200 p-6 text-center">
