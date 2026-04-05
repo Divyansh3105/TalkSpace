@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="taltspace.ico" alt="TalkSpace Logo" width="80" height="80" />
+<img src="frontend/public/logo.png" alt="TalkSpace Logo" width="80" height="80" />
 
 # TalkSpace
 
@@ -12,7 +12,7 @@
 [![Stream](https://img.shields.io/badge/Stream-Chat%20%26%20Video-005FFF?style=flat-square&logo=stream)](https://getstream.io/)
 [![License](https://img.shields.io/badge/License-MIT-yellow?style=flat-square)](LICENSE)
 
-[Live Demo](https://talkspace.app) · [Report Bug](https://github.com/Divyansh3105/TalkSpace/issues) · [Request Feature](https://github.com/Divyansh3105/TalkSpace/issues)
+[Live Demo](https://talkspace.up.railway.app/) · [Report Bug](https://github.com/Divyansh3105/TalkSpace/issues) · [Request Feature](https://github.com/Divyansh3105/TalkSpace/issues)
 
 </div>
 
@@ -42,30 +42,32 @@ Built with a modern tech stack, TalkSpace integrates the [Stream](https://getstr
 ## 🛠️ Tech Stack
 
 ### Frontend
-| Technology | Purpose |
-|---|---|
-| [React 19](https://react.dev/) | UI framework |
-| [Vite](https://vitejs.dev/) | Build tool & dev server |
-| [React Router v7](https://reactrouter.com/) | Client-side routing |
-| [TailwindCSS](https://tailwindcss.com/) + [DaisyUI](https://daisyui.com/) | Styling & theming |
-| [Zustand](https://zustand-demo.pmnd.rs/) | Global state management |
-| [TanStack Query](https://tanstack.com/query) | Server state & data fetching |
-| [Axios](https://axios-http.com/) | HTTP client |
-| [Stream Chat React](https://getstream.io/chat/sdk/react/) | Chat UI & SDK |
-| [Stream Video React SDK](https://getstream.io/video/sdk/react/) | Video call SDK |
-| [Lucide React](https://lucide.dev/) | Icon library |
-| [React Hot Toast](https://react-hot-toast.com/) | Toast notifications |
+
+| Technology                                                                | Purpose                      |
+| ------------------------------------------------------------------------- | ---------------------------- |
+| [React 19](https://react.dev/)                                            | UI framework                 |
+| [Vite](https://vitejs.dev/)                                               | Build tool & dev server      |
+| [React Router v7](https://reactrouter.com/)                               | Client-side routing          |
+| [TailwindCSS](https://tailwindcss.com/) + [DaisyUI](https://daisyui.com/) | Styling & theming            |
+| [Zustand](https://zustand-demo.pmnd.rs/)                                  | Global state management      |
+| [TanStack Query](https://tanstack.com/query)                              | Server state & data fetching |
+| [Axios](https://axios-http.com/)                                          | HTTP client                  |
+| [Stream Chat React](https://getstream.io/chat/sdk/react/)                 | Chat UI & SDK                |
+| [Stream Video React SDK](https://getstream.io/video/sdk/react/)           | Video call SDK               |
+| [Lucide React](https://lucide.dev/)                                       | Icon library                 |
+| [React Hot Toast](https://react-hot-toast.com/)                           | Toast notifications          |
 
 ### Backend
-| Technology | Purpose |
-|---|---|
-| [Node.js](https://nodejs.org/) + [Express](https://expressjs.com/) | REST API server |
-| [MongoDB](https://mongodb.com/) + [Mongoose](https://mongoosejs.com/) | Database & ODM |
-| [Stream Chat (Server SDK)](https://getstream.io/chat/sdk/node/) | Chat token generation |
-| [JSON Web Tokens](https://jwt.io/) | Authentication |
-| [bcryptjs](https://github.com/dcodeIO/bcrypt.js) | Password hashing |
-| [cookie-parser](https://github.com/expressjs/cookie-parser) | HTTP cookie handling |
-| [CORS](https://github.com/expressjs/cors) | Cross-origin resource sharing |
+
+| Technology                                                            | Purpose                       |
+| --------------------------------------------------------------------- | ----------------------------- |
+| [Node.js](https://nodejs.org/) + [Express](https://expressjs.com/)    | REST API server               |
+| [MongoDB](https://mongodb.com/) + [Mongoose](https://mongoosejs.com/) | Database & ODM                |
+| [Stream Chat (Server SDK)](https://getstream.io/chat/sdk/node/)       | Chat token generation         |
+| [JSON Web Tokens](https://jwt.io/)                                    | Authentication                |
+| [bcryptjs](https://github.com/dcodeIO/bcrypt.js)                      | Password hashing              |
+| [cookie-parser](https://github.com/expressjs/cookie-parser)           | HTTP cookie handling          |
+| [CORS](https://github.com/expressjs/cors)                             | Cross-origin resource sharing |
 
 ---
 
@@ -164,30 +166,30 @@ npm run dev        # Starts on http://localhost:5173
 
 ### Auth Routes — `/api/auth`
 
-| Method | Endpoint | Description | Auth |
-|--------|----------|-------------|------|
-| `POST` | `/signup` | Register a new user | ❌ |
-| `POST` | `/login` | Authenticate user | ❌ |
-| `POST` | `/logout` | Invalidate session | ❌ |
-| `POST` | `/onboarding` | Complete user profile setup | ✅ |
-| `GET` | `/me` | Get current authenticated user | ✅ |
+| Method | Endpoint      | Description                    | Auth |
+| ------ | ------------- | ------------------------------ | ---- |
+| `POST` | `/signup`     | Register a new user            | ❌   |
+| `POST` | `/login`      | Authenticate user              | ❌   |
+| `POST` | `/logout`     | Invalidate session             | ❌   |
+| `POST` | `/onboarding` | Complete user profile setup    | ✅   |
+| `GET`  | `/me`         | Get current authenticated user | ✅   |
 
 ### User Routes — `/api/users`
 
-| Method | Endpoint | Description | Auth |
-|--------|----------|-------------|------|
-| `GET` | `/` | Get recommended users | ✅ |
-| `GET` | `/friends` | Get user's friends list | ✅ |
-| `POST` | `/friend-request/:id` | Send a friend request | ✅ |
-| `PUT` | `/friend-request/:id/accept` | Accept a friend request | ✅ |
-| `GET` | `/friend-request/` | Get incoming friend requests | ✅ |
-| `GET` | `/outgoing-friend-request/` | Get outgoing friend requests | ✅ |
+| Method | Endpoint                     | Description                  | Auth |
+| ------ | ---------------------------- | ---------------------------- | ---- |
+| `GET`  | `/`                          | Get recommended users        | ✅   |
+| `GET`  | `/friends`                   | Get user's friends list      | ✅   |
+| `POST` | `/friend-request/:id`        | Send a friend request        | ✅   |
+| `PUT`  | `/friend-request/:id/accept` | Accept a friend request      | ✅   |
+| `GET`  | `/friend-request/`           | Get incoming friend requests | ✅   |
+| `GET`  | `/outgoing-friend-request/`  | Get outgoing friend requests | ✅   |
 
 ### Chat Routes — `/api/chat`
 
-| Method | Endpoint | Description | Auth |
-|--------|----------|-------------|------|
-| `GET` | `/token` | Generate Stream Chat user token | ✅ |
+| Method | Endpoint | Description                     | Auth |
+| ------ | -------- | ------------------------------- | ---- |
+| `GET`  | `/token` | Generate Stream Chat user token | ✅   |
 
 ---
 
