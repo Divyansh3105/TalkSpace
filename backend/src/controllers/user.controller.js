@@ -3,18 +3,53 @@ import User from "../Models/User.js";
 
 export async function getRecommendedUsers(req, res) {
   try {
-    const currentUserId = req.user.id;
+    const currentUserId = req.user._id;
     const currentUser = req.user;
 
-    const recommendedUsers = await User.find({
-      $and: [
-        { _id: { $ne: currentUserId } }, // Exclude the current user
-        { _id: { $nin: currentUser.friends } }, // Exclude friends
-        { isOnboarded: true }, // Only include users who have completed onboarding
-      ],
+    const friendIds = currentUser.friends || [];
+    const excludeIds = [currentUserId, ...friendIds];
+
+    const baseFilter = {
+      _id: { $nin: excludeIds },
+      isOnboarded: true,
+    };
+
+    let recommendedUsers = [];
+
+    // 1. Try to find up to 6 random users from the same location (city)
+    if (currentUser.location) {
+      recommendedUsers = await User.aggregate([
+        { $match: { ...baseFilter, location: currentUser.location } },
+        { $sample: { size: 6 } },
+      ]);
+    }
+
+    // 2. If we don't have 6 users yet, fill the rest with random users from other locations
+    if (recommendedUsers.length < 6) {
+      const remainingCount = 6 - recommendedUsers.length;
+      const foundIds = recommendedUsers.map((u) => u._id);
+      
+      const fallbackFilter = {
+        _id: { $nin: [...excludeIds, ...foundIds] },
+        isOnboarded: true,
+      };
+
+      const additionalUsers = await User.aggregate([
+        { $match: fallbackFilter },
+        { $sample: { size: remainingCount } },
+      ]);
+
+      recommendedUsers = [...recommendedUsers, ...additionalUsers];
+    }
+
+    // Remove the password and sensitive fields from the aggregation result manually
+    // because aggregates don't automatically trigger mongoose selects
+    const sanitizedUsers = recommendedUsers.map((user) => {
+      const { password, ...safeUser } = user;
+      return safeUser;
     });
 
-    res.status(200).json(recommendedUsers);
+    res.status(200).json(sanitizedUsers);
   } catch (error) {
     console.error("Error in getRecommendedUsers controller:", error.message);
     res.status(500).json({ message: "Internal server error" });
