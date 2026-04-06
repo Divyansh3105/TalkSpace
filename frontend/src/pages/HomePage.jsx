@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   getFriendRequests,
   getOutgoingFriendReqs,
@@ -19,11 +19,11 @@ import NoFriendsFound from "../components/NoFriendsFound";
 import useAuthUser from "../hooks/useAuthUser";
 import FriendCardSkeleton from "../components/skeletons/FriendCardSkeleton";
 import UserCardSkeleton from "../components/skeletons/UserCardSkeleton";
+import toast from "react-hot-toast";
 
 const HomePage = () => {
   const queryClient = useQueryClient();
   const { authUser } = useAuthUser();
-  const [outgoingRequestsIds, setOutgoingRequestsIds] = useState(new Set());
   const [searchQuery, setSearchQuery] = useState("");
 
   const { data: friends = [], isLoading: loadingFriends } = useQuery({
@@ -48,20 +48,36 @@ const HomePage = () => {
 
   const pendingRequestsCount = friendRequests?.incomingReqs?.length ?? 0;
 
+  // Derive outgoing request IDs directly from data (no useState + useEffect needed)
+  const outgoingRequestsIds = new Set(
+    (outgoingFriendReqs || []).map((req) => req.recipient._id),
+  );
+
   const { mutate: sendRequestMutation, isPending } = useMutation({
     mutationFn: sendFriendRequest,
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: ["outgoingFriendReqs"] }),
-  });
+    onMutate: async (userId) => {
+      // Optimistically update outgoing requests
+      await queryClient.cancelQueries({ queryKey: ["outgoingFriendReqs"] });
+      const previous = queryClient.getQueryData(["outgoingFriendReqs"]);
 
-  useEffect(() => {
-    if (outgoingFriendReqs) {
-      const outgoingIds = new Set(
-        outgoingFriendReqs.map((req) => req.recipient._id),
-      );
-      setOutgoingRequestsIds(outgoingIds);
-    }
-  }, [outgoingFriendReqs]);
+      queryClient.setQueryData(["outgoingFriendReqs"], (old = []) => [
+        ...old,
+        { recipient: { _id: userId } },
+      ]);
+
+      return { previous };
+    },
+    onError: (_err, _userId, context) => {
+      queryClient.setQueryData(["outgoingFriendReqs"], context.previous);
+      toast.error("Failed to send friend request.");
+    },
+    onSuccess: () => {
+      toast.success("Friend request sent!");
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["outgoingFriendReqs"] });
+    },
+  });
 
   // Time-based greeting
   const hour = new Date().getHours();

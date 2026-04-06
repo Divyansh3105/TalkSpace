@@ -1,13 +1,19 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { acceptFriendRequest, getFriendRequests } from "../lib/api";
+import {
+  acceptFriendRequest,
+  declineFriendRequest,
+  getFriendRequests,
+} from "../lib/api";
 import {
   BellIcon,
   ClockIcon,
   MessageSquareIcon,
   UserCheckIcon,
+  XCircleIcon,
 } from "lucide-react";
 import NoNotificationsFound from "../components/NoNotificationsFound";
 import NotificationSkeleton from "../components/skeletons/NotificationSkeleton";
+import toast from "react-hot-toast";
 
 const NotificationsPage = () => {
   const queryClient = useQueryClient();
@@ -17,13 +23,80 @@ const NotificationsPage = () => {
     queryFn: getFriendRequests,
   });
 
-  const { mutate: acceptRequestMutation, isPending } = useMutation({
-    mutationFn: acceptFriendRequest,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["friendRequests"] });
-      queryClient.invalidateQueries({ queryKey: ["friends"] });
-    },
-  });
+  const { mutate: acceptRequestMutation, isPending: isAccepting } =
+    useMutation({
+      mutationFn: acceptFriendRequest,
+      onMutate: async (requestId) => {
+        // Cancel any outgoing refetches so they don't overwrite our optimistic update
+        await queryClient.cancelQueries({ queryKey: ["friendRequests"] });
+
+        // Snapshot the previous value
+        const previousRequests = queryClient.getQueryData(["friendRequests"]);
+
+        // Optimistically remove from incoming list
+        queryClient.setQueryData(["friendRequests"], (old) => {
+          if (!old) return old;
+          return {
+            ...old,
+            incomingReqs: old.incomingReqs.filter(
+              (req) => req._id !== requestId,
+            ),
+          };
+        });
+
+        return { previousRequests };
+      },
+      onError: (_error, _requestId, context) => {
+        // Roll back on error
+        queryClient.setQueryData(
+          ["friendRequests"],
+          context.previousRequests,
+        );
+        toast.error("Failed to accept request. Please try again.");
+      },
+      onSuccess: () => {
+        toast.success("Friend request accepted!");
+      },
+      onSettled: () => {
+        queryClient.invalidateQueries({ queryKey: ["friendRequests"] });
+        queryClient.invalidateQueries({ queryKey: ["friends"] });
+      },
+    });
+
+  const { mutate: declineRequestMutation, isPending: isDeclining } =
+    useMutation({
+      mutationFn: declineFriendRequest,
+      onMutate: async (requestId) => {
+        await queryClient.cancelQueries({ queryKey: ["friendRequests"] });
+
+        const previousRequests = queryClient.getQueryData(["friendRequests"]);
+
+        queryClient.setQueryData(["friendRequests"], (old) => {
+          if (!old) return old;
+          return {
+            ...old,
+            incomingReqs: old.incomingReqs.filter(
+              (req) => req._id !== requestId,
+            ),
+          };
+        });
+
+        return { previousRequests };
+      },
+      onError: (_error, _requestId, context) => {
+        queryClient.setQueryData(
+          ["friendRequests"],
+          context.previousRequests,
+        );
+        toast.error("Failed to decline request. Please try again.");
+      },
+      onSuccess: () => {
+        toast.success("Friend request declined.");
+      },
+      onSettled: () => {
+        queryClient.invalidateQueries({ queryKey: ["friendRequests"] });
+      },
+    });
 
   const incomingRequests = friendRequests?.incomingReqs || [];
   const acceptedRequests = friendRequests?.acceptedReqs || [];
@@ -75,13 +148,27 @@ const NotificationsPage = () => {
                             </div>
                           </div>
 
-                          <button
-                            className="btn btn-primary btn-sm"
-                            onClick={() => acceptRequestMutation(request._id)}
-                            disabled={isPending}
-                          >
-                            Accept
-                          </button>
+                          <div className="flex gap-2">
+                            <button
+                              className="btn btn-primary btn-sm"
+                              onClick={() =>
+                                acceptRequestMutation(request._id)
+                              }
+                              disabled={isAccepting || isDeclining}
+                            >
+                              Accept
+                            </button>
+                            <button
+                              className="btn btn-ghost btn-sm text-error"
+                              onClick={() =>
+                                declineRequestMutation(request._id)
+                              }
+                              disabled={isAccepting || isDeclining}
+                            >
+                              <XCircleIcon className="h-4 w-4 mr-1" />
+                              Decline
+                            </button>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -90,7 +177,7 @@ const NotificationsPage = () => {
               </section>
             )}
 
-            {/* ACCEPTED REQS NOTIFICATONS */}
+            {/* ACCEPTED REQS NOTIFICATIONS */}
             {acceptedRequests.length > 0 && (
               <section className="space-y-4">
                 <h2 className="text-xl font-semibold flex items-center gap-2">

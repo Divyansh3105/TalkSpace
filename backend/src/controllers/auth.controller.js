@@ -31,7 +31,6 @@ export async function signup(req, res) {
     }
 
     const seed = Math.random().toString(36).substring(2, 10);
-    const idx = Math.floor(Math.random() * 100) + 1;
     const randomAvatar = `https://api.dicebear.com/9.x/personas/svg?seed=${seed}`;
 
     const newUser = await User.create({

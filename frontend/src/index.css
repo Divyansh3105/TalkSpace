@@ -2,11 +2,17 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ============================================================
+   Stream Chat – Theme-aware overrides
+   Uses DaisyUI/oklch CSS variables so chat UI matches the
+   currently selected theme automatically.
+   ============================================================ */
+
 .str-chat__channel {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(to bottom, #c9e8c9, #b7e7bb);
+  background: oklch(var(--b2, 0.95 0 0));
   height: 100%;
 }
 
@@ -21,7 +27,7 @@
 }
 
 .str-chat__list {
-  background-color: #ffffff;
+  background-color: oklch(var(--b1, 1 0 0));
   padding: 12px;
 }
 
@@ -30,5 +36,45 @@
 }
 
 .str-chat__message-input {
-  border-top: 1px solid #ddd;
+  border-top: 1px solid oklch(var(--b3, 0.9 0 0));
+  background-color: oklch(var(--b1, 1 0 0));
+}
+
+/* Message bubbles that follow the theme */
+.str-chat__message-simple__content {
+  color: oklch(var(--bc, 0.2 0 0));
+}
+
+/* Smooth page transitions for lazy-loaded routes */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Custom scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: oklch(var(--bc, 0.5 0 0) / 0.2);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: oklch(var(--bc, 0.5 0 0) / 0.35);
 }

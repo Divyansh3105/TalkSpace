@@ -30,12 +30,15 @@ Built with a modern tech stack, TalkSpace integrates the [Stream](https://getstr
 
 - 🔐 **Authentication** — Secure sign-up, login, and logout with JWT-based sessions
 - 🧭 **Onboarding Flow** — Profile setup with native language and learning language preferences
-- 👥 **Friend System** — Send, receive, and accept friend requests; view recommended users
+- 👥 **Friend System** — Send, receive, accept, and decline friend requests
+- 🔍 **Friends Directory** — Dedicated Friends page with real-time search filtering
 - 💬 **Real-Time Messaging** — Powered by Stream Chat SDK with instant delivery
 - 📹 **Video Calls** — One-on-one video calling via Stream Video React SDK
-- 🔔 **Notifications** — Friend request notifications in real-time
-- 🎨 **Theme Selector** — Multiple DaisyUI themes with persistent preference via Zustand
-- 📱 **Responsive Design** — Fully responsive across desktop and mobile devices
+- 🔔 **Notifications** — Friend request notifications with optimistic UI updates
+- 🎨 **Theme Selector** — Multiple DaisyUI themes with persistent preference
+- 📱 **PWA Support** — Installable as a standalone app on desktop and mobile
+- 🛡️ **Production Ready** — Rate limiting, input sanitization, error boundaries, and CI/CD pipelines
+- ⚡ **Performance Optimized** — Lazy loading, code splitting, and suspense for heavy SDKs
 
 ---
 
@@ -182,6 +185,7 @@ npm run dev        # Starts on http://localhost:5173
 | `GET`  | `/friends`                   | Get user's friends list      | ✅   |
 | `POST` | `/friend-request/:id`        | Send a friend request        | ✅   |
 | `PUT`  | `/friend-request/:id/accept` | Accept a friend request      | ✅   |
+| `DELETE`| `/friend-request/:id/decline`| Decline a friend request     | ✅   |
 | `GET`  | `/friend-request/`           | Get incoming friend requests | ✅   |
 | `GET`  | `/outgoing-friend-request/`  | Get outgoing friend requests | ✅   |
 
