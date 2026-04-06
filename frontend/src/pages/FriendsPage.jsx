@@ -7,11 +7,9 @@ import {
   SearchIcon,
   UsersIcon,
 } from "lucide-react";
-import useAuthUser from "../hooks/useAuthUser";
 import FriendCardSkeleton from "../components/skeletons/FriendCardSkeleton";
 
 const FriendsPage = () => {
-  const { authUser } = useAuthUser();
   const [searchQuery, setSearchQuery] = useState("");
 
   const { data: friends = [], isLoading } = useQuery({

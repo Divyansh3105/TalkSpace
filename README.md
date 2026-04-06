@@ -30,13 +30,14 @@ Built with a modern tech stack, TalkSpace integrates the [Stream](https://getstr
 
 - 🔐 **Authentication** — Secure sign-up, login, and logout with JWT-based sessions
 - 🧭 **Onboarding Flow** — Profile setup with native language and learning language preferences
+- 👤 **Customizable Profiles** — Update bio, location, languages, and upload custom avatars natively
 - 👥 **Friend System** — Send, receive, accept, and decline friend requests
-- 🔍 **Friends Directory** — Dedicated Friends page with real-time search filtering
+- 🔍 **Friends Directory** — Dedicated Friends page with real-time search filtering and advanced ML-based matching
 - 💬 **Real-Time Messaging** — Powered by Stream Chat SDK with instant delivery
 - 📹 **Video Calls** — One-on-one video calling via Stream Video React SDK
 - 🔔 **Notifications** — Friend request notifications with optimistic UI updates
-- 🎨 **Theme Selector** — Multiple DaisyUI themes with persistent preference
-- 📱 **PWA Support** — Installable as a standalone app on desktop and mobile
+- ⚙️ **Settings Dashboard** — Full-page settings hub with visual Theme Selector (DaisyUI themes)
+- 📱 **Mobile First** — PWA support and sleek iOS-like bottom tab navigation for phones
 - 🛡️ **Production Ready** — Rate limiting, input sanitization, error boundaries, and CI/CD pipelines
 - ⚡ **Performance Optimized** — Lazy loading, code splitting, and suspense for heavy SDKs
 
@@ -84,6 +85,7 @@ TalkSpace/
 │       ├── components/        # Reusable UI components
 │       │   ├── Navbar.jsx
 │       │   ├── Sidebar.jsx
+│       │   ├── BottomNav.jsx
 │       │   ├── FriendCard.jsx
 │       │   ├── ThemeSelector.jsx
 │       │   └── ...
@@ -92,6 +94,8 @@ TalkSpace/
 │       │   ├── ChatPage.jsx
 │       │   ├── CallPage.jsx
 │       │   ├── NotificationsPage.jsx
+│       │   ├── ProfilePage.jsx
+│       │   ├── SettingsPage.jsx
 │       │   ├── OnboardingPage.jsx
 │       │   ├── LoginPage.jsx
 │       │   └── SignUpPage.jsx
@@ -183,6 +187,7 @@ npm run dev        # Starts on http://localhost:5173
 | ------ | ---------------------------- | ---------------------------- | ---- |
 | `GET`  | `/`                          | Get recommended users        | ✅   |
 | `GET`  | `/friends`                   | Get user's friends list      | ✅   |
+| `PUT`  | `/profile`                   | Update user profile data     | ✅   |
 | `POST` | `/friend-request/:id`        | Send a friend request        | ✅   |
 | `PUT`  | `/friend-request/:id/accept` | Accept a friend request      | ✅   |
 | `DELETE`| `/friend-request/:id/decline`| Decline a friend request     | ✅   |
