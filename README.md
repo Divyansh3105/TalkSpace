@@ -234,6 +234,26 @@ Distributed under the MIT License. See [`LICENSE`](LICENSE) for more information
 
 ---
 
+## 👨‍💻 About the Developer
+
 <div align="center">
-  Made with ❤️ by <a href="https://github.com/Divyansh3105">Divyansh</a>
+
+### Divyansh Garg
+
+**Full-Stack Developer | Web Designer | AC Enthusiast**
+
+[![Portfolio](https://img.shields.io/badge/Portfolio-FF5722?style=for-the-badge&logo=google-chrome&logoColor=white)](https://divyansh3105.github.io/Portfolio/)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/divyanshgarg3105/)
+[![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Divyansh3105)
+
+_🧠 Brain + 💻 Keyboard = ✨ Magic_
+
+</div>
+
+---
+
+<div align="center">
+  <i>"Nothing is true, everything is permitted."</i>
+
+  <p>⭐ If you liked this tribute, please don't forget to star the repo!</p>
 </div>
