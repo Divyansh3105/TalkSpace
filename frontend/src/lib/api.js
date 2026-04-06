@@ -78,3 +78,8 @@ export async function getStreamToken() {
   return response.data;
 }
 
+export async function updateUserProfile(data) {
+  const response = await axiosInstance.put("/users/profile", data);
+  return response.data;
+}
+

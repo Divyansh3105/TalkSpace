@@ -16,6 +16,8 @@ import SignUpPage from "./pages/SignUpPage.jsx";
 import OnBoardingPage from "./pages/OnboardingPage.jsx";
 import NotificationsPage from "./pages/NotificationsPage.jsx";
 import FriendsPage from "./pages/FriendsPage.jsx";
+import SettingsPage from "./pages/SettingsPage.jsx";
+import ProfilePage from "./pages/ProfilePage.jsx";
 
 // Lazily loaded pages (loaded on demand — these pull in heavy SDKs)
 const ChatPage = lazy(() => import("./pages/ChatPage.jsx"));
@@ -106,6 +108,30 @@ const App = () => {
                 isAuthenticated && isOnboarded ? (
                   <Layout showSidebar={true}>
                     <ChatPage />
+                  </Layout>
+                ) : (
+                  <Navigate to={!isAuthenticated ? "/login" : "/onboarding"} />
+                )
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                isAuthenticated && isOnboarded ? (
+                  <Layout showSidebar={true}>
+                    <ProfilePage />
+                  </Layout>
+                ) : (
+                  <Navigate to={!isAuthenticated ? "/login" : "/onboarding"} />
+                )
+              }
+            />
+            <Route
+              path="/settings"
+              element={
+                isAuthenticated && isOnboarded ? (
+                  <Layout showSidebar={true}>
+                    <SettingsPage />
                   </Layout>
                 ) : (
                   <Navigate to={!isAuthenticated ? "/login" : "/onboarding"} />

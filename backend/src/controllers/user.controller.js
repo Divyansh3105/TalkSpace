@@ -188,3 +188,37 @@ export async function declineFriendRequest(req, res) {
   }
 }
 
+export async function updateProfile(req, res) {
+  try {
+    const { fullName, bio, location, nativeLanguage, learningLanguage, profileImage } = req.body;
+    const userId = req.user.id;
+
+    // Check if user exists
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Prepare fields to update. Only update if provided in the body layer.
+    // The profileImage will be a base64 string
+    const updateData = {};
+    if (fullName !== undefined) updateData.fullName = fullName;
+    if (bio !== undefined) updateData.bio = bio;
+    if (location !== undefined) updateData.location = location;
+    if (nativeLanguage !== undefined) updateData.nativeLanguage = nativeLanguage;
+    if (learningLanguage !== undefined) updateData.learningLanguage = learningLanguage;
+    if (profileImage !== undefined) updateData.profilePic = profileImage;
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { $set: updateData },
+      { new: true, runValidators: true }
+    ).select("-password -__v");
+
+    res.status(200).json(updatedUser);
+  } catch (error) {
+    console.error("Error in updateProfile controller:", error.message);
+    res.status(500).json({ message: "Internal server error" });
+  }
+}
+

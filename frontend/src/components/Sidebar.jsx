@@ -58,7 +58,7 @@ const SideBar = () => {
 
       {/* USER PROFILE SECTION */}
       <div className="p-4 border-t border-base-content/5 mt-auto">
-        <div className="flex items-center gap-3">
+        <Link to="/profile" className="flex items-center gap-3 hover:bg-base-content/5 p-2 rounded-xl transition-colors">
           <div className="avatar">
             <div className="w-10 rounded-full">
               <img src={authUser?.profilePic} alt="User Avatar" />
@@ -71,7 +71,7 @@ const SideBar = () => {
               Online
             </p>
           </div>
-        </div>
+        </Link>
       </div>
     </aside>
   );
