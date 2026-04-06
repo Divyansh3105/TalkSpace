@@ -20,11 +20,13 @@ const LoginPage = () => {
   };
 
   return (
-    <div
-      className="h-screen flex items-center justify-center p-4 sm:p-6 md:p-8"
-      data-theme="forest"
-    >
-      <div className="border border-primary/25 flex flex-col lg:flex-row w-full max-w-5xl mx-auto bg-base-100 rounded-xl shadow-lg overflow-hidden">
+    <div className="h-screen flex items-center justify-center p-4 sm:p-6 md:p-8 relative overflow-hidden bg-base-200">
+      {/* Ambient background blur effects */}
+      <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-primary/30 rounded-full filter blur-[120px] opacity-60 animate-pulse"></div>
+      <div className="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-secondary/30 rounded-full filter blur-[120px] opacity-60 animate-pulse" style={{ animationDelay: "2s" }}></div>
+      <div className="absolute top-[20%] right-[20%] w-64 h-64 bg-accent/20 rounded-full filter blur-[100px] opacity-50 animate-pulse" style={{ animationDelay: "4s" }}></div>
+
+      <div className="border border-base-content/10 flex flex-col lg:flex-row w-full max-w-5xl mx-auto glass-panel rounded-3xl shadow-2xl overflow-hidden relative z-10">
         {/* LOGIN FORM SECTION */}
         <div className="w-full lg:w-1/2 p-4 sm:p-8 flex flex-col">
           {/* LOGO */}

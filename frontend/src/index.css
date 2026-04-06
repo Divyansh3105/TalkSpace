@@ -2,6 +2,24 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  body {
+    font-family: 'Outfit', sans-serif;
+  }
+}
+
+/* ============================================================
+   Premium UI Utilities
+   ============================================================ */
+
+.glass-panel {
+  @apply bg-base-100/70 backdrop-blur-md border border-base-content/10 shadow-sm;
+}
+
+.hover-lift {
+  @apply transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/10;
+}
+
 /* ============================================================
    Stream Chat – Theme-aware overrides
    Uses DaisyUI/oklch CSS variables so chat UI matches the

@@ -130,7 +130,7 @@ const NotificationsPage = () => {
                   {incomingRequests.map((request) => (
                     <div
                       key={request._id}
-                      className="card bg-base-200 shadow-sm hover:shadow-md transition-shadow"
+                      className="card glass-panel hover-lift border-l-4 border-l-primary"
                     >
                       <div className="card-body p-4">
                         <div className="flex items-center justify-between">
@@ -189,7 +189,7 @@ const NotificationsPage = () => {
                   {acceptedRequests.map((notification) => (
                     <div
                       key={notification._id}
-                      className="card bg-base-200 shadow-sm"
+                      className="card glass-panel hover-lift border-l-4 border-l-success"
                     >
                       <div className="card-body p-4">
                         <div className="flex items-start gap-3">

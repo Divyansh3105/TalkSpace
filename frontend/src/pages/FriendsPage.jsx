@@ -91,7 +91,7 @@ const FriendsPage = () => {
             {filteredFriends.map((friend) => (
               <div
                 key={friend._id}
-                className="card bg-base-200 hover:shadow-md transition-all duration-200"
+                className="card glass-panel hover-lift"
               >
                 <div className="card-body p-4">
                   <div className="flex items-center gap-3 mb-3">

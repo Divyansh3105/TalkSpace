@@ -8,8 +8,8 @@ const SideBar = () => {
   const currentPath = location.pathname;
 
   return (
-    <aside className="w-64 bg-base-200 border-r border-base-300 hidden lg:flex flex-col h-screen sticky top-0">
-      <div className="p-5 border-b border-base-300">
+    <aside className="w-64 bg-base-100/50 backdrop-blur-md border-r border-base-content/5 hidden lg:flex flex-col h-screen sticky top-0">
+      <div className="p-5 border-b border-base-content/5">
         <Link to="/" className="flex items-center gap-2.5">
           <img
             src="/logo.png"
@@ -27,8 +27,8 @@ const SideBar = () => {
       <nav className="flex-1 p-4 space-y-1">
         <Link
           to="/"
-          className={`btn btn-ghost justify-start w-full gap-3 px-3 normal-case ${
-            currentPath === "/" ? "btn-active" : ""
+          className={`btn btn-ghost justify-start w-full gap-3 px-3 normal-case transition-all duration-200 ${
+            currentPath === "/" ? "bg-primary/10 text-primary" : "hover:bg-base-content/5"
           }`}
         >
           <HomeIcon className="size-5 text-base-content opacity-70" />
@@ -37,8 +37,8 @@ const SideBar = () => {
 
         <Link
           to="/friends"
-          className={`btn btn-ghost justify-start w-full gap-3 px-3 normal-case ${
-            currentPath === "/friends" ? "btn-active" : ""
+          className={`btn btn-ghost justify-start w-full gap-3 px-3 normal-case transition-all duration-200 ${
+            currentPath === "/friends" ? "bg-primary/10 text-primary" : "hover:bg-base-content/5"
           }`}
         >
           <UsersIcon className="size-5 text-base-content opacity-70" />
@@ -47,8 +47,8 @@ const SideBar = () => {
 
         <Link
           to="/notifications"
-          className={`btn btn-ghost justify-start w-full gap-3 px-3 normal-case ${
-            currentPath === "/notifications" ? "btn-active" : ""
+          className={`btn btn-ghost justify-start w-full gap-3 px-3 normal-case transition-all duration-200 ${
+            currentPath === "/notifications" ? "bg-primary/10 text-primary" : "hover:bg-base-content/5"
           }`}
         >
           <BellIcon className="size-5 text-base-content opacity-70" />
@@ -57,7 +57,7 @@ const SideBar = () => {
       </nav>
 
       {/* USER PROFILE SECTION */}
-      <div className="p-4 border-t border-base-300 mt-auto">
+      <div className="p-4 border-t border-base-content/5 mt-auto">
         <div className="flex items-center gap-3">
           <div className="avatar">
             <div className="w-10 rounded-full">

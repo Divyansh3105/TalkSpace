@@ -3,7 +3,7 @@ import { MessageSquareIcon, PhoneCallIcon, UserIcon } from "lucide-react";
 
 const FriendCard = ({ friend }) => {
   return (
-    <div className="card bg-base-200 hover:shadow-md transition-shadow">
+    <div className="card glass-panel hover-lift">
       <div className="card-body p-4">
         {/* USER INFO */}
         <div className="flex items-center gap-3 mb-3">

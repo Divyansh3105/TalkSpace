@@ -115,7 +115,7 @@ const HomePage = () => {
 
           {/* QUICK STATS */}
           <div className="flex gap-3">
-            <div className="stat bg-base-200 rounded-box p-3 min-w-24">
+            <div className="stat glass-panel hover-lift rounded-box p-3 min-w-24">
               <div className="stat-title text-xs">Friends</div>
               <div className="stat-value text-2xl text-primary">
                 {loadingFriends ? (
@@ -128,7 +128,7 @@ const HomePage = () => {
 
             <Link
               to="/notifications"
-              className="stat bg-base-200 rounded-box p-3 min-w-24 cursor-pointer hover:bg-base-300 transition-colors"
+              className="stat glass-panel hover-lift rounded-box p-3 min-w-24 cursor-pointer"
             >
               <div className="stat-title text-xs">Requests</div>
               <div className="stat-value text-2xl flex items-center gap-1">
@@ -227,7 +227,7 @@ const HomePage = () => {
                 return (
                   <div
                     key={user._id}
-                    className="card bg-base-200 hover:shadow-lg transition-all duration-300"
+                    className="card glass-panel hover-lift"
                   >
                     <div className="card-body p-5 space-y-4">
                       <div className="flex items-center gap-3">
