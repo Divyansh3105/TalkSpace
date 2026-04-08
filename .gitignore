@@ -36,3 +36,9 @@ taltspace.ico
 
 # Test output
 test-results/
+
+# Windows system files
+desktop.ini
+Desktop.ini
+Thumbs.db
+ehthumbs.db
