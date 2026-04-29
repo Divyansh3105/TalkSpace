@@ -167,8 +167,9 @@ export async function getFriendRequest(req, res) {
       status: "pending",
     }).populate("sender", "fullName profilePic");
 
+    // "X accepted your request" → shown to the sender, not the recipient
     const acceptedReqs = await FriendRequest.find({
-      recipient: req.user.id,
+      sender: req.user.id,
       status: "accepted",
     }).populate("recipient", "fullName profilePic");
 
