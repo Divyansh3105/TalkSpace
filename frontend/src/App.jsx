@@ -18,6 +18,7 @@ import NotificationsPage from "./pages/NotificationsPage.jsx";
 import FriendsPage from "./pages/FriendsPage.jsx";
 import SettingsPage from "./pages/SettingsPage.jsx";
 import ProfilePage from "./pages/ProfilePage.jsx";
+import NotFoundPage from "./pages/NotFoundPage.jsx";
 
 // Lazily loaded pages (loaded on demand — these pull in heavy SDKs)
 const ChatPage = lazy(() => import("./pages/ChatPage.jsx"));
@@ -152,6 +153,7 @@ const App = () => {
                 )
               }
             />
+            <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </Suspense>
 

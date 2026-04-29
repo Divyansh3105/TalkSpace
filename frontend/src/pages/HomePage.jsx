@@ -17,6 +17,7 @@ import {
 import FriendCard from "../components/FriendCard";
 import NoFriendsFound from "../components/NoFriendsFound";
 import useAuthUser from "../hooks/useAuthUser";
+import useStreamPresence from "../hooks/useStreamPresence";
 import FriendCardSkeleton from "../components/skeletons/FriendCardSkeleton";
 import UserCardSkeleton from "../components/skeletons/UserCardSkeleton";
 import toast from "react-hot-toast";
@@ -30,6 +31,10 @@ const HomePage = () => {
     queryKey: ["friends"],
     queryFn: getUserFriends,
   });
+
+  // Derive friend IDs for presence tracking
+  const friendIds = friends.map((f) => f._id);
+  const { isOnline } = useStreamPresence(friendIds);
 
   const { data: recommendedUsers = [], isLoading: loadingUsers } = useQuery({
     queryKey: ["users"],
@@ -181,7 +186,7 @@ const HomePage = () => {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {filteredFriends.map((friend) => (
-              <FriendCard key={friend._id} friend={friend} />
+              <FriendCard key={friend._id} friend={friend} isOnline={isOnline(friend._id)} />
             ))}
           </div>
         )}

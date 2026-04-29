@@ -1,8 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   acceptFriendRequest,
+  cancelFriendRequest,
   declineFriendRequest,
   getFriendRequests,
+  getOutgoingFriendReqs,
 } from "../lib/api";
 import {
   BellIcon,
@@ -10,6 +12,7 @@ import {
   MessageSquareIcon,
   UserCheckIcon,
   XCircleIcon,
+  XIcon,
 } from "lucide-react";
 import NoNotificationsFound from "../components/NoNotificationsFound";
 import NotificationSkeleton from "../components/skeletons/NotificationSkeleton";
@@ -22,6 +25,12 @@ const NotificationsPage = () => {
     queryKey: ["friendRequests"],
     queryFn: getFriendRequests,
   });
+
+  const { data: outgoingReqs = [] } = useQuery({
+    queryKey: ["outgoingFriendReqs"],
+    queryFn: getOutgoingFriendReqs,
+  });
+  const pendingOutgoing = outgoingReqs.filter((r) => r.status === "pending");
 
   const { mutate: acceptRequestMutation, isPending: isAccepting } =
     useMutation({
@@ -96,6 +105,26 @@ const NotificationsPage = () => {
       onSettled: () => {
         queryClient.invalidateQueries({ queryKey: ["friendRequests"] });
       },
+    });
+
+  const { mutate: cancelRequestMutation, isPending: isCancelling } =
+    useMutation({
+      mutationFn: cancelFriendRequest,
+      onMutate: async (requestId) => {
+        await queryClient.cancelQueries({ queryKey: ["outgoingFriendReqs"] });
+        const prev = queryClient.getQueryData(["outgoingFriendReqs"]);
+        queryClient.setQueryData(["outgoingFriendReqs"], (old = []) =>
+          old.filter((r) => r._id !== requestId),
+        );
+        return { prev };
+      },
+      onError: (_err, _id, ctx) => {
+        queryClient.setQueryData(["outgoingFriendReqs"], ctx.prev);
+        toast.error("Failed to cancel request.");
+      },
+      onSuccess: () => toast.success("Friend request cancelled."),
+      onSettled: () =>
+        queryClient.invalidateQueries({ queryKey: ["outgoingFriendReqs"] }),
     });
 
   const incomingRequests = friendRequests?.incomingReqs || [];
@@ -223,10 +252,59 @@ const NotificationsPage = () => {
                 </div>
               </section>
             )}
+            {/* OUTGOING / SENT REQUESTS */}
+            {pendingOutgoing.length > 0 && (
+              <section className="space-y-4">
+                <h2 className="text-xl font-semibold flex items-center gap-2">
+                  <ClockIcon className="h-5 w-5 text-warning" />
+                  Sent Requests
+                  <span className="badge badge-warning ml-2">
+                    {pendingOutgoing.length}
+                  </span>
+                </h2>
 
-            {incomingRequests.length === 0 && acceptedRequests.length === 0 && (
-              <NoNotificationsFound />
+                <div className="space-y-3">
+                  {pendingOutgoing.map((req) => (
+                    <div
+                      key={req._id}
+                      className="card glass-panel hover-lift border-l-4 border-l-warning"
+                    >
+                      <div className="card-body p-4">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="avatar w-12 h-12 rounded-full bg-base-300">
+                              <img
+                                src={req.recipient.profilePic}
+                                alt={req.recipient.fullName}
+                              />
+                            </div>
+                            <div>
+                              <h3 className="font-semibold">
+                                {req.recipient.fullName}
+                              </h3>
+                              <p className="text-xs opacity-60">Pending…</p>
+                            </div>
+                          </div>
+
+                          <button
+                            className="btn btn-ghost btn-sm text-error gap-1"
+                            onClick={() => cancelRequestMutation(req._id)}
+                            disabled={isCancelling}
+                          >
+                            <XIcon className="h-4 w-4" />
+                            Cancel
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </section>
             )}
+
+            {incomingRequests.length === 0 &&
+              acceptedRequests.length === 0 &&
+              pendingOutgoing.length === 0 && <NoNotificationsFound />}
           </>
         )}
       </div>

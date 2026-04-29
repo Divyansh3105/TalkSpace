@@ -82,3 +82,17 @@ export async function updateUserProfile(data) {
   const response = await axiosInstance.put("/users/profile", data);
   return response.data;
 }
+
+export async function removeFriend(friendId) {
+  const response = await axiosInstance.delete(`/users/friends/${friendId}`);
+  return response.data;
+}
+
+export async function cancelFriendRequest(requestId) {
+  // Reuses the decline endpoint — now allows sender to cancel too
+  const response = await axiosInstance.delete(
+    `/users/friend-request/${requestId}/decline`,
+  );
+  return response.data;
+}
+

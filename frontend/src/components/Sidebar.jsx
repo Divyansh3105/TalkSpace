@@ -1,11 +1,13 @@
 import { Link, useLocation } from "react-router";
 import useAuthUser from "../hooks/useAuthUser";
-import { BellIcon, HomeIcon, UsersIcon } from "lucide-react";
+import useUnreadCounts from "../hooks/useUnreadCounts";
+import { BellIcon, HomeIcon, MessageSquareIcon, UsersIcon } from "lucide-react";
 
 const SideBar = () => {
   const { authUser } = useAuthUser();
   const location = useLocation();
   const currentPath = location.pathname;
+  const { totalUnread } = useUnreadCounts();
 
   return (
     <aside className="w-64 bg-base-100/50 backdrop-blur-md border-r border-base-content/5 hidden lg:flex flex-col h-screen sticky top-0">
@@ -43,6 +45,11 @@ const SideBar = () => {
         >
           <UsersIcon className="size-5 text-base-content opacity-70" />
           <span>Friends</span>
+          {totalUnread > 0 && (
+            <span className="badge badge-error badge-sm ml-auto">
+              {totalUnread > 99 ? "99+" : totalUnread}
+            </span>
+          )}
         </Link>
 
         <Link

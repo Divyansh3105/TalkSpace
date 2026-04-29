@@ -7,6 +7,7 @@ import {
   getMyFriends,
   getOutgoingFriendRequests,
   getRecommendedUsers,
+  removeFriend,
   sendFriendRequest,
   updateProfile,
 } from "../controllers/user.controller.js";
@@ -18,6 +19,7 @@ const router = express.Router();
 router.use(protectRoute); // protect all routes below
 router.get("/", getRecommendedUsers);
 router.get("/friends", getMyFriends);
+router.delete("/friends/:id", removeFriend);
 router.put("/profile", validate(updateProfileSchema), updateProfile);
 
 router.post("/friend-request/:id", sendFriendRequest);

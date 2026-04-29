@@ -207,21 +207,26 @@ export async function declineFriendRequest(req, res) {
       return res.status(404).json({ message: "Friend request not found" });
     }
 
-    // verify the current user is the recipient
-    if (friendRequest.recipient.toString() !== req.user.id) {
+    // Both the sender (cancelling) and recipient (declining) may delete it
+    const isInvolved =
+      friendRequest.recipient.toString() === req.user.id ||
+      friendRequest.sender.toString() === req.user.id;
+
+    if (!isInvolved) {
       return res.status(403).json({
-        message: "You are not authorized to decline this friend request",
+        message: "You are not authorized to remove this friend request",
       });
     }
 
     await FriendRequest.findByIdAndDelete(requestId);
 
-    res.status(200).json({ message: "Friend request declined" });
+    res.status(200).json({ message: "Friend request removed" });
   } catch (error) {
     console.error("Error in declineFriendRequest controller:", error.message);
     res.status(500).json({ message: "Internal server error" });
   }
 }
+
 
 export async function updateProfile(req, res) {
   try {
@@ -251,6 +256,28 @@ export async function updateProfile(req, res) {
     res.status(200).json(updatedUser);
   } catch (error) {
     console.error("Error in updateProfile controller:", error.message);
+    res.status(500).json({ message: "Internal server error" });
+  }
+}
+
+export async function removeFriend(req, res) {
+  try {
+    const myId = req.user.id;
+    const { id: friendId } = req.params;
+
+    if (myId === friendId) {
+      return res.status(400).json({ message: "Cannot unfriend yourself" });
+    }
+
+    // Remove each user from the other's friends list atomically
+    await Promise.all([
+      User.findByIdAndUpdate(myId, { $pull: { friends: friendId } }),
+      User.findByIdAndUpdate(friendId, { $pull: { friends: myId } }),
+    ]);
+
+    res.status(200).json({ message: "Friend removed successfully" });
+  } catch (error) {
+    console.error("Error in removeFriend controller:", error.message);
     res.status(500).json({ message: "Internal server error" });
   }
 }

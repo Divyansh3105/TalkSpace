@@ -8,6 +8,8 @@ import {
   UsersIcon,
 } from "lucide-react";
 import FriendCardSkeleton from "../components/skeletons/FriendCardSkeleton";
+import useStreamPresence from "../hooks/useStreamPresence";
+import OnlineBadge from "../components/OnlineBadge";
 
 const FriendsPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -16,6 +18,9 @@ const FriendsPage = () => {
     queryKey: ["friends"],
     queryFn: getUserFriends,
   });
+
+  const friendIds = friends.map((f) => f._id);
+  const { isOnline } = useStreamPresence(friendIds);
 
   const query = searchQuery.toLowerCase().trim();
 
@@ -93,12 +98,18 @@ const FriendsPage = () => {
               >
                 <div className="card-body p-4">
                   <div className="flex items-center gap-3 mb-3">
-                    <div className="avatar size-14 rounded-full">
-                      <img
-                        src={friend.profilePic}
-                        alt={friend.fullName}
-                        className="rounded-full"
-                      />
+                    <div className="relative shrink-0">
+                      <div className="avatar size-14 rounded-full">
+                        <img
+                          src={friend.profilePic}
+                          alt={friend.fullName}
+                          className="rounded-full"
+                        />
+                      </div>
+                      {/* Corner presence dot */}
+                      <span className="absolute bottom-0 right-0">
+                        <OnlineBadge isOnline={isOnline(friend._id)} showLabel={false} />
+                      </span>
                     </div>
                     <div className="flex-1 min-w-0">
                       <h3 className="font-semibold text-base truncate">
@@ -109,6 +120,7 @@ const FriendsPage = () => {
                           {friend.location}
                         </p>
                       )}
+                      <OnlineBadge isOnline={isOnline(friend._id)} showLabel />
                     </div>
                   </div>
 
