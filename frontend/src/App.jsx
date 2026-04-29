@@ -1,13 +1,12 @@
 import { lazy, Suspense } from "react";
 import { Navigate, Route, Routes } from "react-router";
-
 import { Toaster } from "react-hot-toast";
 
 import PageLoader from "./components/PageLoader.jsx";
 import ErrorBoundary from "./components/ErrorBoundary.jsx";
 import useAuthUser from "./hooks/useAuthUser.js";
-import Layout from "./components/Layout.jsx";
 import { useThemeStore } from "./store/useThemeStore.js";
+import { AuthProvider, GuestRoute, ProtectedRoute } from "./components/ProtectedRoute.jsx";
 
 // Eagerly loaded pages (part of the initial bundle)
 import HomePage from "./pages/HomePage.jsx";
@@ -26,136 +25,51 @@ const CallPage = lazy(() => import("./pages/CallPage.jsx"));
 
 const App = () => {
   const { isLoading, authUser } = useAuthUser();
-
   const { theme } = useThemeStore();
+
   const isAuthenticated = Boolean(authUser);
-  const isOnboarded = authUser?.isOnboarded;
+  const isOnboarded = Boolean(authUser?.isOnboarded);
+
   if (isLoading) return <PageLoader />;
 
   return (
     <ErrorBoundary>
       <div className="h-screen bg-base-100" data-theme={theme}>
-        <Suspense fallback={<PageLoader />}>
-          <Routes>
-            <Route
-              path="/"
-              element={
-                isAuthenticated && isOnboarded ? (
-                  <Layout showSidebar>
-                    <HomePage />
-                  </Layout>
-                ) : (
-                  <Navigate to={!isAuthenticated ? "/login" : "/onboarding"} />
-                )
-              }
-            />
-            <Route
-              path="/signup"
-              element={
-                !isAuthenticated ? (
-                  <SignUpPage />
-                ) : (
-                  <Navigate to={isOnboarded ? "/" : "/onboarding"} />
-                )
-              }
-            />
-            <Route
-              path="/login"
-              element={
-                !isAuthenticated ? (
-                  <LoginPage />
-                ) : (
-                  <Navigate to={isOnboarded ? "/" : "/onboarding"} />
-                )
-              }
-            />
-            <Route
-              path="/notifications"
-              element={
-                isAuthenticated && isOnboarded ? (
-                  <Layout showSidebar={true}>
-                    <NotificationsPage />
-                  </Layout>
-                ) : (
-                  <Navigate to={!isAuthenticated ? "/login" : "/onboarding"} />
-                )
-              }
-            />
-            <Route
-              path="/friends"
-              element={
-                isAuthenticated && isOnboarded ? (
-                  <Layout showSidebar={true}>
-                    <FriendsPage />
-                  </Layout>
-                ) : (
-                  <Navigate to={!isAuthenticated ? "/login" : "/onboarding"} />
-                )
-              }
-            />
-            <Route
-              path="/call/:id"
-              element={
-                isAuthenticated && isOnboarded ? (
-                  <CallPage />
-                ) : (
-                  <Navigate to={!isAuthenticated ? "/login" : "/onboarding"} />
-                )
-              }
-            />
-            <Route
-              path="/chat/:id"
-              element={
-                isAuthenticated && isOnboarded ? (
-                  <Layout showSidebar={true}>
-                    <ChatPage />
-                  </Layout>
-                ) : (
-                  <Navigate to={!isAuthenticated ? "/login" : "/onboarding"} />
-                )
-              }
-            />
-            <Route
-              path="/profile"
-              element={
-                isAuthenticated && isOnboarded ? (
-                  <Layout showSidebar={true}>
-                    <ProfilePage />
-                  </Layout>
-                ) : (
-                  <Navigate to={!isAuthenticated ? "/login" : "/onboarding"} />
-                )
-              }
-            />
-            <Route
-              path="/settings"
-              element={
-                isAuthenticated && isOnboarded ? (
-                  <Layout showSidebar={true}>
-                    <SettingsPage />
-                  </Layout>
-                ) : (
-                  <Navigate to={!isAuthenticated ? "/login" : "/onboarding"} />
-                )
-              }
-            />
-            <Route
-              path="/onboarding"
-              element={
-                isAuthenticated ? (
-                  !isOnboarded ? (
-                    <OnBoardingPage />
+        <AuthProvider isAuthenticated={isAuthenticated} isOnboarded={isOnboarded}>
+          <Suspense fallback={<PageLoader />}>
+            <Routes>
+              {/* ── Public (guest-only) routes ── */}
+              <Route path="/login" element={<GuestRoute><LoginPage /></GuestRoute>} />
+              <Route path="/signup" element={<GuestRoute><SignUpPage /></GuestRoute>} />
+
+              {/* ── Onboarding ── */}
+              <Route
+                path="/onboarding"
+                element={
+                  isAuthenticated ? (
+                    !isOnboarded ? <OnBoardingPage /> : <Navigate to="/" replace />
                   ) : (
-                    <Navigate to="/" />
+                    <Navigate to="/login" replace />
                   )
-                ) : (
-                  <Navigate to="/login" />
-                )
-              }
-            />
-            <Route path="*" element={<NotFoundPage />} />
-          </Routes>
-        </Suspense>
+                }
+              />
+
+              {/* ── Protected routes (auth + onboarded, with sidebar) ── */}
+              <Route path="/" element={<ProtectedRoute><HomePage /></ProtectedRoute>} />
+              <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
+              <Route path="/friends" element={<ProtectedRoute><FriendsPage /></ProtectedRoute>} />
+              <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+              <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
+              <Route path="/chat/:id" element={<ProtectedRoute><ChatPage /></ProtectedRoute>} />
+
+              {/* ── Call page — protected but no sidebar ── */}
+              <Route path="/call/:id" element={<ProtectedRoute showSidebar={false}><CallPage /></ProtectedRoute>} />
+
+              {/* ── 404 catch-all ── */}
+              <Route path="*" element={<NotFoundPage />} />
+            </Routes>
+          </Suspense>
+        </AuthProvider>
 
         <Toaster />
       </div>

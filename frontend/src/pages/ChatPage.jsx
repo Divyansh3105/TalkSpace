@@ -41,7 +41,7 @@ const ChatPage = () => {
       if (!tokenData?.token || !authUser) return;
 
       try {
-        console.log("Initializing stream chat client...");
+
 
         const client = StreamChat.getInstance(STREAM_API_KEY);
 

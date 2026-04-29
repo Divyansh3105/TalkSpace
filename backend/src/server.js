@@ -10,8 +10,24 @@ import { connectDB } from "./lib/db.js";
 import { sanitizeInput } from "./middleware/sanitize.middleware.js";
 import rateLimit from "express-rate-limit";
 
+// ── Fail fast if required environment variables are missing ──────────────────
+const REQUIRED_ENV_VARS = [
+  "MONGODB_URI",
+  "JWT_SECRET",
+  "STREAM_API_KEY",
+  "STREAM_API_SECRET",
+  "CORS_ORIGIN",
+];
+REQUIRED_ENV_VARS.forEach((key) => {
+  if (!process.env[key]) {
+    throw new Error(`Missing required environment variable: ${key}`);
+  }
+});
+// ────────────────────────────────────────────────────────────────────────────
+
 const app = express();
 const PORT = process.env.PORT || 5001;
+
 
 const __dirname = path.resolve();
 
