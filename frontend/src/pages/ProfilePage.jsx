@@ -13,8 +13,6 @@ const ProfilePage = () => {
     fullName: authUser?.fullName || "",
     bio: authUser?.bio || "",
     location: authUser?.location || "",
-    nativeLanguage: authUser?.nativeLanguage || "",
-    learningLanguage: authUser?.learningLanguage || "",
   });
 
   const [imagePreview, setImagePreview] = useState(

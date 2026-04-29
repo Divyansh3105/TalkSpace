@@ -31,7 +31,7 @@ const ChatPage = () => {
   const { authUser } = useAuthUser();
 
   const { data: tokenData } = useQuery({
-    queryKey: ["streamToken"],
+    queryKey: ["streamToken", authUser?._id],
     queryFn: getStreamToken,
     enabled: !!authUser, // this will run only when authUser is available
   });
@@ -73,6 +73,10 @@ const ChatPage = () => {
     };
 
     initChat();
+
+    return () => {
+      if (chatClient) chatClient.disconnectUser().catch(console.error);
+    };
   }, [tokenData, authUser, targetUserId]);
 
   const handleVideoCall = () => {

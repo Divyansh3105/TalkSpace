@@ -64,7 +64,8 @@ export async function signup(req, res) {
       secure: process.env.NODE_ENV === "production", // Use secure cookies in production
     });
 
-    res.status(201).json({ success: true, user: newUser });
+    const { password: _pw, ...safeNewUser } = newUser.toObject();
+    res.status(201).json({ success: true, user: safeNewUser });
   } catch (error) {
     console.error("Signup error:", error);
     res.status(500).json({ message: "Internal server error" });
@@ -81,7 +82,8 @@ export async function login(req, res) {
         .json({ message: "Email and password are required" });
     }
 
-    const user = await User.findOne({ email });
+    // Explicitly select password — it's excluded by default (select: false in schema)
+    const user = await User.findOne({ email }).select("+password -__v");
     if (!user) {
       return res.status(401).json({ message: "Invalid email or password" });
     }
@@ -103,7 +105,9 @@ export async function login(req, res) {
       secure: process.env.NODE_ENV === "production", // Use secure cookies in production
     });
 
-    res.status(200).json({ success: true, user });
+    // Strip password before sending response
+    const { password: _pw, ...safeUser } = user.toObject();
+    res.status(200).json({ success: true, user: safeUser });
   } catch (error) {
     console.error("Login error:", error.message);
     res.status(500).json({ message: "Internal server error" });
@@ -119,7 +123,7 @@ export async function onboard(req, res) {
   try {
     const userId = req.user._id;
 
-    const { fullName, bio, location } = req.body;
+    const { fullName, bio, location, profilePic } = req.body;
 
     if (!fullName || !bio || !location) {
       return res.status(400).json({
@@ -132,14 +136,18 @@ export async function onboard(req, res) {
       });
     }
 
-    const updatedUser = await User.findByIdAndUpdate(
-      userId,
-      {
-        ...req.body,
-        isOnboarded: true,
-      },
-      { new: true },
-    );
+    // Whitelist only expected fields — never spread req.body directly into the DB
+    const updateData = {
+      fullName,
+      bio,
+      location,
+      isOnboarded: true,
+      ...(profilePic !== undefined && { profilePic }),
+    };
+
+    const updatedUser = await User.findByIdAndUpdate(userId, updateData, {
+      new: true,
+    }).select("-__v");
     if (!updatedUser)
       return res.status(404).json({ message: "User not found" });
 
@@ -179,10 +187,10 @@ export async function googleAuth(req, res) {
     const payload = ticket.getPayload();
     const { email, name, picture, sub: googleId } = payload;
 
-    let user = await User.findOne({ email });
+    let user = await User.findOne({ email }).select("-__v");
 
     if (!user) {
-      user = await User.create({
+      const created = await User.create({
         fullName: name,
         email: email,
         googleId: googleId,
@@ -191,14 +199,19 @@ export async function googleAuth(req, res) {
 
       try {
         await upsertStreamUser({
-          id: user._id.toString(),
-          name: user.fullName,
-          image: user.profilePic,
+          id: created._id.toString(),
+          name: created.fullName,
+          image: created.profilePic,
         });
-        console.log(`Stream user upserted successfully for Google Auth with Name: ${user.fullName}`);
+        console.log(
+          `Stream user upserted successfully for Google Auth with Name: ${created.fullName}`,
+        );
       } catch (error) {
         console.error("Error upserting Stream user:", error);
       }
+
+      const { __v, ...safeCreated } = created.toObject();
+      user = safeCreated;
     } else if (!user.googleId) {
       // Link existing account with Google ID
       user.googleId = googleId;
@@ -216,7 +229,7 @@ export async function googleAuth(req, res) {
       secure: process.env.NODE_ENV === "production", // Use secure cookies in production
     });
 
-    res.status(200).json({ success: true, user });
+    res.status(200).json({ success: true, user: user.toObject ? user.toObject() : user });
   } catch (error) {
     console.error("Google Auth Error:", error);
     res.status(500).json({ message: "Failed to authenticate with Google" });

@@ -82,4 +82,3 @@ export async function updateUserProfile(data) {
   const response = await axiosInstance.put("/users/profile", data);
   return response.data;
 }
-

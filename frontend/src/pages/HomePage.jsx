@@ -225,10 +225,7 @@ const HomePage = () => {
                 const hasRequestBeenSent = outgoingRequestsIds.has(user._id);
 
                 return (
-                  <div
-                    key={user._id}
-                    className="card glass-panel hover-lift"
-                  >
+                  <div key={user._id} className="card glass-panel hover-lift">
                     <div className="card-body p-5 space-y-4">
                       <div className="flex items-center gap-3">
                         <div className="avatar size-16 rounded-full">

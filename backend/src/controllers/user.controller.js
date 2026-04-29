@@ -28,7 +28,7 @@ export async function getRecommendedUsers(req, res) {
     if (recommendedUsers.length < 6) {
       const remainingCount = 6 - recommendedUsers.length;
       const foundIds = recommendedUsers.map((u) => u._id);
-      
+
       const fallbackFilter = {
         _id: { $nin: [...excludeIds, ...foundIds] },
         isOnboarded: true,
@@ -225,7 +225,7 @@ export async function declineFriendRequest(req, res) {
 
 export async function updateProfile(req, res) {
   try {
-    const { fullName, bio, location, nativeLanguage, learningLanguage, profileImage } = req.body;
+    const { fullName, bio, location, profileImage } = req.body;
     const userId = req.user.id;
 
     // Check if user exists
@@ -240,14 +240,12 @@ export async function updateProfile(req, res) {
     if (fullName !== undefined) updateData.fullName = fullName;
     if (bio !== undefined) updateData.bio = bio;
     if (location !== undefined) updateData.location = location;
-    if (nativeLanguage !== undefined) updateData.nativeLanguage = nativeLanguage;
-    if (learningLanguage !== undefined) updateData.learningLanguage = learningLanguage;
     if (profileImage !== undefined) updateData.profilePic = profileImage;
 
     const updatedUser = await User.findByIdAndUpdate(
       userId,
       { $set: updateData },
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     ).select("-password -__v");
 
     res.status(200).json(updatedUser);
@@ -256,4 +254,3 @@ export async function updateProfile(req, res) {
     res.status(500).json({ message: "Internal server error" });
   }
 }
-

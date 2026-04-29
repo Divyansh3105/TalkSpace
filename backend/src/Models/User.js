@@ -6,11 +6,16 @@ const userSchema = new mongoose.Schema(
     fullName: {
       type: String,
       required: true,
+      trim: true,
+      maxlength: [100, "Full name must be 100 characters or fewer"],
     },
     email: {
       type: String,
       required: true,
       unique: true,
+      trim: true,
+      lowercase: true,
+      maxlength: [254, "Email must be 254 characters or fewer"],
     },
     googleId: {
       type: String,
@@ -20,18 +25,25 @@ const userSchema = new mongoose.Schema(
     password: {
       type: String,
       minlength: 6,
+      maxlength: [128, "Password must be 128 characters or fewer"],
+      select: false, // Never returned by default — opt-in with .select("+password")
     },
     bio: {
       type: String,
       default: "",
+      trim: true,
+      maxlength: [300, "Bio must be 300 characters or fewer"],
     },
     profilePic: {
       type: String,
       default: "",
+      maxlength: [2048, "Profile picture URL must be 2048 characters or fewer"],
     },
     location: {
       type: String,
       default: "",
+      trim: true,
+      maxlength: [100, "Location must be 100 characters or fewer"],
     },
     isOnboarded: {
       type: Boolean,
