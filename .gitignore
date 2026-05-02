@@ -42,3 +42,7 @@ desktop.ini
 Desktop.ini
 Thumbs.db
 ehthumbs.db
+
+# AI related files
+.agents/
+graphify-out/
