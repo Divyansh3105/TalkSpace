@@ -37,15 +37,17 @@ const ChatPage = () => {
   });
 
   useEffect(() => {
+    let clientInstance = null;
+
     const initChat = async () => {
       if (!tokenData?.token || !authUser) return;
 
       try {
 
 
-        const client = StreamChat.getInstance(STREAM_API_KEY);
+        clientInstance = StreamChat.getInstance(STREAM_API_KEY);
 
-        await client.connectUser(
+        await clientInstance.connectUser(
           {
             id: authUser._id,
             name: authUser.fullName,
@@ -56,13 +58,13 @@ const ChatPage = () => {
 
         const channelId = [authUser._id, targetUserId].sort().join("-");
 
-        const currChannel = client.channel("messaging", channelId, {
+        const currChannel = clientInstance.channel("messaging", channelId, {
           members: [authUser._id, targetUserId],
         });
 
         await currChannel.watch();
 
-        setChatClient(client);
+        setChatClient(clientInstance);
         setChannel(currChannel);
       } catch (error) {
         console.error("Error initializing chat:", error);
@@ -75,7 +77,7 @@ const ChatPage = () => {
     initChat();
 
     return () => {
-      if (chatClient) chatClient.disconnectUser().catch(console.error);
+      if (clientInstance) clientInstance.disconnectUser().catch(console.error);
     };
   }, [tokenData, authUser, targetUserId]);
 

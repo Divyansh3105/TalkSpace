@@ -9,29 +9,14 @@ import chatRoutes from "./routes/chat.route.js";
 import { connectDB } from "./lib/db.js";
 import { sanitizeInput } from "./middleware/sanitize.middleware.js";
 import rateLimit from "express-rate-limit";
-
-// ── Fail fast if required environment variables are missing ──────────────────
-const REQUIRED_ENV_VARS = [
-  "MONGODB_URI",
-  "JWT_SECRET",
-  "STREAM_API_KEY",
-  "STREAM_API_SECRET",
-  "CORS_ORIGIN",
-];
-REQUIRED_ENV_VARS.forEach((key) => {
-  if (!process.env[key]) {
-    throw new Error(`Missing required environment variable: ${key}`);
-  }
-});
-// ────────────────────────────────────────────────────────────────────────────
+import { env } from "./lib/env.js";
 
 const app = express();
-const PORT = process.env.PORT || 5001;
-
+const PORT = env.PORT;
 
 const __dirname = path.resolve();
 
-app.use(cors({ origin: process.env.CORS_ORIGIN, credentials: true }));
+app.use(cors({ origin: env.CORS_ORIGIN, credentials: true }));
 
 app.use(express.json());
 app.use(cookieParser());
@@ -49,7 +34,7 @@ app.use("/api/auth", authLimiter, authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/chat", chatRoutes);
 
-if (process.env.NODE_ENV === "production") {
+if (env.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "../frontend/dist")));
 
   app.get("*", (req, res) => {
@@ -59,8 +44,8 @@ if (process.env.NODE_ENV === "production") {
 
 const startServer = async () => {
   try {
-    if (process.env.NODE_ENV !== "production") {
-      console.log("URI:", process.env.MONGODB_URI);
+    if (env.NODE_ENV !== "production") {
+      console.log("URI:", env.MONGODB_URI);
     }
 
     await connectDB(); // connect first

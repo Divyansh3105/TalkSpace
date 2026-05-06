@@ -58,6 +58,18 @@
   background-color: oklch(var(--b1, 1 0 0));
 }
 
+/* Ensure typed text is visible in the chat input area across all themes */
+.str-chat__message-input textarea,
+.str-chat__textarea textarea {
+  color: oklch(var(--bc, 0.2 0 0)) !important;
+  background-color: transparent !important;
+}
+
+.str-chat__message-input textarea::placeholder,
+.str-chat__textarea textarea::placeholder {
+  color: oklch(var(--bc, 0.2 0 0) / 0.5) !important;
+}
+
 /* Message bubbles that follow the theme */
 .str-chat__message-simple__content {
   color: oklch(var(--bc, 0.2 0 0));
