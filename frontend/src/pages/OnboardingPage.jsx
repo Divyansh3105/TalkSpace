@@ -29,7 +29,7 @@ const OnBoardingPage = () => {
     },
 
     onError: (error) => {
-      toast.error(error.response.data.message);
+      toast.error(error.response?.data?.message || "Can't reach the server. Please try again.");
     },
   });
 
