@@ -16,6 +16,9 @@ const PORT = env.PORT;
 
 const __dirname = path.resolve();
 
+// Behind Render's proxy: use the client IP from X-Forwarded-For, not the proxy's
+if (env.NODE_ENV === "production") app.set("trust proxy", 1);
+
 app.use(cors({ origin: env.CORS_ORIGIN, credentials: true }));
 
 app.use(express.json());
@@ -30,7 +33,9 @@ const authLimiter = rateLimit({
   message: { error: "Too many requests, please try again later." },
 });
 
-app.use("/api/auth", authLimiter, authRoutes);
+// Only limit credential endpoints; /me runs on every page load
+app.use(["/api/auth/login", "/api/auth/signup"], authLimiter);
+app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/chat", chatRoutes);
 
