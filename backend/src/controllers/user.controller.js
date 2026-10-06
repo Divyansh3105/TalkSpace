@@ -270,10 +270,17 @@ export async function removeFriend(req, res) {
       return res.status(400).json({ message: "Cannot unfriend yourself" });
     }
 
-    // Remove each user from the other's friends list atomically
+    // Remove each user from the other's friends list, and drop the old
+    // accepted request so sendFriendRequest doesn't block re-friending
     await Promise.all([
       User.findByIdAndUpdate(myId, { $pull: { friends: friendId } }),
       User.findByIdAndUpdate(friendId, { $pull: { friends: myId } }),
+      FriendRequest.deleteMany({
+        $or: [
+          { sender: myId, recipient: friendId },
+          { sender: friendId, recipient: myId },
+        ],
+      }),
     ]);
 
     res.status(200).json({ message: "Friend removed successfully" });
