@@ -12,7 +12,7 @@
 [![Stream](https://img.shields.io/badge/Stream-Chat%20%26%20Video-005FFF?style=flat-square&logo=stream)](https://getstream.io/)
 [![License](https://img.shields.io/badge/License-MIT-yellow?style=flat-square)](LICENSE)
 
-[Live Demo](https://talkspace.up.railway.app/) · [Report Bug](https://github.com/Divyansh3105/TalkSpace/issues) · [Request Feature](https://github.com/Divyansh3105/TalkSpace/issues)
+[Live Demo](https://talkspace-i5d2.onrender.com/) (free tier: the first load can take ~20s) · [Report Bug](https://github.com/Divyansh3105/TalkSpace/issues) · [Request Feature](https://github.com/Divyansh3105/TalkSpace/issues)
 
 </div>
 
