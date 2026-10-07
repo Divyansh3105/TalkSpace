@@ -49,10 +49,6 @@ if (env.NODE_ENV === "production") {
 
 const startServer = async () => {
   try {
-    if (env.NODE_ENV !== "production") {
-      console.log("URI:", env.MONGODB_URI);
-    }
-
     await connectDB(); // connect first
 
     app.listen(PORT, () => {
