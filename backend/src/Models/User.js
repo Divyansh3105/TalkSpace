@@ -34,6 +34,9 @@ const userSchema = new mongoose.Schema(
       default: "",
       maxlength: [2048, "Profile picture URL must be 2048 characters or fewer"],
     },
+    // Uploaded avatar bytes, served by GET /api/users/:id/avatar
+    avatarData: { type: Buffer, select: false },
+    avatarType: { type: String, select: false },
     location: {
       type: String,
       default: "",

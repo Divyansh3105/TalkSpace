@@ -44,6 +44,16 @@ const profilePicField = z
   .max(2048, "Profile picture URL must be 2048 characters or fewer")
   .optional();
 
+// Raster formats only: SVG served from our origin could run scripts
+const avatarImageField = z
+  .string()
+  .max(150_000, "Profile image is too large")
+  .regex(
+    /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/]+={0,2}$/,
+    "Profile image must be a JPEG, PNG or WebP",
+  )
+  .optional();
+
 // ─── Auth schemas ─────────────────────────────────────────────────────────────
 
 export const signupSchema = z.object({
@@ -81,7 +91,7 @@ export const updateProfileSchema = z
     fullName: fullNameField.optional(),
     bio: bioField,
     location: locationField,
-    profileImage: profilePicField,
+    profileImage: avatarImageField,
   })
   .refine((data) => Object.keys(data).length > 0, {
     message: "At least one field must be provided to update",

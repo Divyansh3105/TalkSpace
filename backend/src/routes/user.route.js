@@ -3,6 +3,7 @@ import { protectRoute } from "../middleware/auth.middleware.js";
 import {
   acceptFriendRequest,
   declineFriendRequest,
+  getAvatar,
   getFriendRequest,
   getMyFriends,
   getOutgoingFriendRequests,
@@ -15,6 +16,9 @@ import { validate } from "../middleware/validate.middleware.js";
 import { updateProfileSchema } from "../lib/validation.schemas.js";
 
 const router = express.Router();
+
+// Public: loaded by <img> tags and Stream, which don't send our auth cookie
+router.get("/:id/avatar", getAvatar);
 
 router.use(protectRoute); // protect all routes below
 router.get("/", getRecommendedUsers);

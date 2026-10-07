@@ -5,6 +5,32 @@ import { updateUserProfile } from "../lib/api";
 import { CameraIcon, SaveIcon, UserIcon } from "lucide-react";
 import toast from "react-hot-toast";
 
+const AVATAR_SIZE = 256;
+
+// Center-crop to a square and re-encode as a small JPEG (~20-40KB),
+// so any photo fits the backend's upload limit.
+async function toAvatarDataUrl(file) {
+  const img = await createImageBitmap(file);
+  const side = Math.min(img.width, img.height);
+  const canvas = document.createElement("canvas");
+  canvas.width = canvas.height = AVATAR_SIZE;
+  const ctx = canvas.getContext("2d");
+  ctx.fillStyle = "#fff"; // JPEG has no alpha; avoid black behind transparent PNGs
+  ctx.fillRect(0, 0, AVATAR_SIZE, AVATAR_SIZE);
+  ctx.drawImage(
+    img,
+    (img.width - side) / 2,
+    (img.height - side) / 2,
+    side,
+    side,
+    0,
+    0,
+    AVATAR_SIZE,
+    AVATAR_SIZE,
+  );
+  return canvas.toDataURL("image/jpeg", 0.85);
+}
+
 const ProfilePage = () => {
   const { authUser } = useAuthUser();
   const queryClient = useQueryClient();
@@ -18,7 +44,7 @@ const ProfilePage = () => {
   const [imagePreview, setImagePreview] = useState(
     authUser?.profilePic || null,
   );
-  const [profileImage, setProfileImage] = useState(null); // Will hold base64 string
+  const [profileImage, setProfileImage] = useState(null); // JPEG data URL
 
   const { mutate: updateProfile, isPending } = useMutation({
     mutationFn: updateUserProfile,
@@ -31,22 +57,17 @@ const ProfilePage = () => {
     },
   });
 
-  const handleImageChange = (e) => {
+  const handleImageChange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
-    // Validate size (e.g., max 2MB)
-    if (file.size > 2 * 1024 * 1024) {
-      toast.error("Image must be less than 2MB");
-      return;
+    try {
+      const dataUrl = await toAvatarDataUrl(file);
+      setImagePreview(dataUrl);
+      setProfileImage(dataUrl);
+    } catch {
+      toast.error("Couldn't read that image. Try a JPEG or PNG.");
     }
-
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => {
-      setImagePreview(reader.result);
-      setProfileImage(reader.result); // Base64 string for the backend
-    };
   };
 
   const handleSave = (e) => {

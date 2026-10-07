@@ -21,7 +21,7 @@ if (env.NODE_ENV === "production") app.set("trust proxy", 1);
 
 app.use(cors({ origin: env.CORS_ORIGIN, credentials: true }));
 
-app.use(express.json());
+app.use(express.json({ limit: "200kb" })); // room for a downscaled avatar upload
 app.use(cookieParser());
 app.use(sanitizeInput);
 

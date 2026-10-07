@@ -1,5 +1,27 @@
+import { isValidObjectId } from "mongoose";
 import FriendRequest from "../Models/FriendRequest.js";
 import User from "../Models/User.js";
+import { upsertStreamUser } from "../lib/stream.js";
+
+export async function getAvatar(req, res) {
+  try {
+    if (!isValidObjectId(req.params.id)) return res.sendStatus(404);
+
+    const user = await User.findById(req.params.id).select("+avatarData +avatarType");
+    if (!user?.avatarData) return res.sendStatus(404);
+
+    res.set({
+      "Content-Type": user.avatarType,
+      "X-Content-Type-Options": "nosniff",
+      // URL carries ?v=<timestamp>, so a new upload gets a new URL
+      "Cache-Control": "public, max-age=31536000, immutable",
+    });
+    res.send(user.avatarData);
+  } catch (error) {
+    console.error("Error in getAvatar controller:", error.message);
+    res.status(500).json({ message: "Internal server error" });
+  }
+}
 
 export async function getRecommendedUsers(req, res) {
   try {
@@ -45,7 +67,7 @@ export async function getRecommendedUsers(req, res) {
     // Remove the password and sensitive fields from the aggregation result manually
     // because aggregates don't automatically trigger mongoose selects
     const sanitizedUsers = recommendedUsers.map((user) => {
-      const { password, ...safeUser } = user;
+      const { password, avatarData, avatarType, ...safeUser } = user;
       return safeUser;
     });
 
@@ -241,18 +263,31 @@ export async function updateProfile(req, res) {
     }
 
     // Prepare fields to update. Only update if provided in the body layer.
-    // The profileImage will be a base64 string
     const updateData = {};
     if (fullName !== undefined) updateData.fullName = fullName;
     if (bio !== undefined) updateData.bio = bio;
     if (location !== undefined) updateData.location = location;
-    if (profileImage !== undefined) updateData.profilePic = profileImage;
+    if (profileImage !== undefined) {
+      // profileImage is a data URL (format checked by updateProfileSchema).
+      // Store the bytes and point profilePic at the avatar endpoint; ?v busts caches.
+      const [, contentType, base64] = profileImage.match(/^data:([^;]+);base64,(.+)$/);
+      updateData.avatarData = Buffer.from(base64, "base64");
+      updateData.avatarType = contentType;
+      updateData.profilePic = `${req.protocol}://${req.get("host")}/api/users/${userId}/avatar?v=${Date.now()}`;
+    }
 
     const updatedUser = await User.findByIdAndUpdate(
       userId,
       { $set: updateData },
       { new: true, runValidators: true },
     ).select("-password -__v");
+
+    // Keep chat/video in sync with the new name and avatar
+    await upsertStreamUser({
+      id: updatedUser._id.toString(),
+      name: updatedUser.fullName,
+      image: updatedUser.profilePic,
+    });
 
     res.status(200).json(updatedUser);
   } catch (error) {
