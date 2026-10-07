@@ -1,4 +1,5 @@
 import express from "express";
+import { isValidObjectId } from "mongoose";
 import { protectRoute } from "../middleware/auth.middleware.js";
 import {
   acceptFriendRequest,
@@ -16,6 +17,15 @@ import { validate } from "../middleware/validate.middleware.js";
 import { updateProfileSchema } from "../lib/validation.schemas.js";
 
 const router = express.Router();
+
+// Every :id route takes a Mongo id; reject malformed ones here instead of
+// letting Mongoose throw a CastError that surfaces as a 500
+router.param("id", (req, res, next, id) => {
+  if (!isValidObjectId(id)) {
+    return res.status(400).json({ message: "Invalid id" });
+  }
+  next();
+});
 
 // Public: loaded by <img> tags and Stream, which don't send our auth cookie
 router.get("/:id/avatar", getAvatar);

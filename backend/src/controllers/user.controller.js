@@ -1,12 +1,9 @@
-import { isValidObjectId } from "mongoose";
 import FriendRequest from "../Models/FriendRequest.js";
 import User from "../Models/User.js";
 import { upsertStreamUser } from "../lib/stream.js";
 
 export async function getAvatar(req, res) {
   try {
-    if (!isValidObjectId(req.params.id)) return res.sendStatus(404);
-
     const user = await User.findById(req.params.id).select("+avatarData +avatarType");
     if (!user?.avatarData) return res.sendStatus(404);
 
