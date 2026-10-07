@@ -17,11 +17,6 @@ const userSchema = new mongoose.Schema(
       lowercase: true,
       maxlength: [254, "Email must be 254 characters or fewer"],
     },
-    googleId: {
-      type: String,
-      unique: true,
-      sparse: true,
-    },
     password: {
       type: String,
       minlength: 6,

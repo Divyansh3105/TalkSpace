@@ -1,9 +1,7 @@
 import { upsertStreamUser } from "../lib/stream.js";
 import User from "../Models/User.js";
 import jwt from "jsonwebtoken";
-import { OAuth2Client } from "google-auth-library";
 
-const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 export async function signup(req, res) {
   const { fullName, email, password } = req.body;
 
@@ -84,7 +82,8 @@ export async function login(req, res) {
 
     // Explicitly select password — it's excluded by default (select: false in schema)
     const user = await User.findOne({ email }).select("+password -__v");
-    if (!user) {
+    // Accounts created via the removed Google login have no password
+    if (!user?.password) {
       return res.status(401).json({ message: "Invalid email or password" });
     }
 
@@ -169,69 +168,5 @@ export async function onboard(req, res) {
   } catch (error) {
     console.error("Onboarding error:", error);
     res.status(500).json({ message: "Internal server error" });
-  }
-}
-
-export async function googleAuth(req, res) {
-  try {
-    const { token } = req.body;
-    if (!token) {
-      return res.status(400).json({ message: "Google token is required" });
-    }
-
-    const ticket = await googleClient.verifyIdToken({
-      idToken: token,
-      audience: process.env.GOOGLE_CLIENT_ID,
-    });
-
-    const payload = ticket.getPayload();
-    const { email, name, picture, sub: googleId } = payload;
-
-    let user = await User.findOne({ email }).select("-__v");
-
-    if (!user) {
-      const created = await User.create({
-        fullName: name,
-        email: email,
-        googleId: googleId,
-        profilePic: picture,
-      });
-
-      try {
-        await upsertStreamUser({
-          id: created._id.toString(),
-          name: created.fullName,
-          image: created.profilePic,
-        });
-        console.log(
-          `Stream user upserted successfully for Google Auth with Name: ${created.fullName}`,
-        );
-      } catch (error) {
-        console.error("Error upserting Stream user:", error);
-      }
-
-      const { __v, ...safeCreated } = created.toObject();
-      user = safeCreated;
-    } else if (!user.googleId) {
-      // Link existing account with Google ID
-      user.googleId = googleId;
-      await user.save();
-    }
-
-    const authToken = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "7d",
-    });
-
-    res.cookie("token", authToken, {
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-      httpOnly: true, // Prevents XSS attacks
-      sameSite: "Strict", // CSRF protection
-      secure: process.env.NODE_ENV === "production", // Use secure cookies in production
-    });
-
-    res.status(200).json({ success: true, user: user.toObject ? user.toObject() : user });
-  } catch (error) {
-    console.error("Google Auth Error:", error);
-    res.status(500).json({ message: "Failed to authenticate with Google" });
   }
 }

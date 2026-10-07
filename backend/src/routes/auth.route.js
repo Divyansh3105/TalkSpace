@@ -4,7 +4,6 @@ import {
   login,
   logout,
   onboard,
-  googleAuth,
 } from "../controllers/auth.controller.js";
 import { protectRoute } from "../middleware/auth.middleware.js";
 import { validate } from "../middleware/validate.middleware.js";
@@ -19,7 +18,6 @@ const router = express.Router();
 router.post("/signup", validate(signupSchema), signup);
 router.post("/login", validate(loginSchema), login);
 router.post("/logout", logout);
-router.post("/google", googleAuth); // token validated by Google SDK — no body schema needed
 
 router.post("/onboarding", protectRoute, validate(onboardSchema), onboard);
 

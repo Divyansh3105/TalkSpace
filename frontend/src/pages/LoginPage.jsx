@@ -1,9 +1,7 @@
 import { useState } from "react";
 import { ShipWheelIcon } from "lucide-react";
 import { Link } from "react-router";
-import { GoogleLogin } from "@react-oauth/google";
 import useLogin from "../hooks/useLogin";
-import useGoogleAuth from "../hooks/useGoogleAuth";
 
 const LoginPage = () => {
   const [loginData, setLoginData] = useState({
@@ -12,7 +10,6 @@ const LoginPage = () => {
   });
 
   const { isPending, error, loginMutation } = useLogin();
-  const { googleAuthMutation } = useGoogleAuth();
 
   const handleLogin = (e) => {
     e.preventDefault();
@@ -102,24 +99,6 @@ const LoginPage = () => {
                       "Sign In"
                     )}
                   </button>
-
-                  <div className="divider text-sm opacity-70">OR</div>
-
-                  <div className="w-full flex justify-center [&_iframe]:!w-full">
-                    <GoogleLogin
-                      onSuccess={(credentialResponse) => {
-                        googleAuthMutation(credentialResponse.credential);
-                      }}
-                      onError={() => {
-                        console.log("Google Login Failed");
-                      }}
-                      theme="filled_black"
-                      size="large"
-                      text="continue_with"
-                      shape="rectangular"
-                      width="100%"
-                    />
-                  </div>
 
                   <div className="text-center mt-4">
                     <p className="text-sm">
