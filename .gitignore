@@ -46,3 +46,6 @@ ehthumbs.db
 # AI related files
 .agents/
 graphify-out/
+
+# TestSprite scratch output
+testsprite_tests/
