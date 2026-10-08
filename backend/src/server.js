@@ -1,58 +1,13 @@
-import express from "express";
-import "dotenv/config";
-import cookieParser from "cookie-parser";
-import cors from "cors";
-import path from "path";
-import authRoutes from "./routes/auth.route.js";
-import userRoutes from "./routes/user.route.js";
-import chatRoutes from "./routes/chat.route.js";
+import { app } from "./app.js";
 import { connectDB } from "./lib/db.js";
-import { sanitizeInput } from "./middleware/sanitize.middleware.js";
-import rateLimit from "express-rate-limit";
 import { env } from "./lib/env.js";
-
-const app = express();
-const PORT = env.PORT;
-
-const __dirname = path.resolve();
-
-// Behind Render's proxy: use the client IP from X-Forwarded-For, not the proxy's
-if (env.NODE_ENV === "production") app.set("trust proxy", 1);
-
-app.use(cors({ origin: env.CORS_ORIGIN, credentials: true }));
-
-app.use(express.json({ limit: "200kb" })); // room for a downscaled avatar upload
-app.use(cookieParser());
-app.use(sanitizeInput);
-
-const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 20,                   // max 20 requests per window per IP
-  standardHeaders: true,     // send RateLimit-* headers
-  legacyHeaders: false,
-  message: { error: "Too many requests, please try again later." },
-});
-
-// Only limit credential endpoints; /me runs on every page load
-app.use(["/api/auth/login", "/api/auth/signup"], authLimiter);
-app.use("/api/auth", authRoutes);
-app.use("/api/users", userRoutes);
-app.use("/api/chat", chatRoutes);
-
-if (env.NODE_ENV === "production") {
-  app.use(express.static(path.join(__dirname, "../frontend/dist")));
-
-  app.get("*", (req, res) => {
-    res.sendFile(path.join(__dirname, "../frontend", "dist", "index.html"));
-  });
-}
 
 const startServer = async () => {
   try {
     await connectDB(); // connect first
 
-    app.listen(PORT, () => {
-      console.log(`Server is running on port ${PORT}`);
+    app.listen(env.PORT, () => {
+      console.log(`Server is running on port ${env.PORT}`);
     });
   } catch (error) {
     console.error("Failed to start server:", error);

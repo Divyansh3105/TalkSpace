@@ -105,12 +105,14 @@ TalkSpace/
 │       └── constants/         # App-wide constants
 │
 └── backend/                   # Express REST API
-    └── src/
-        ├── controllers/       # Route handler logic
-        ├── routes/            # API route definitions
-        ├── middleware/        # Auth & other middleware
-        ├── lib/               # DB connection & utilities
-        └── server.js          # App entry point
+    ├── src/
+    │   ├── controllers/       # Route handler logic
+    │   ├── routes/            # API route definitions
+    │   ├── middleware/        # Auth & other middleware
+    │   ├── lib/               # DB connection & utilities
+    │   ├── app.js             # Express app (middleware + routes)
+    │   └── server.js          # Entry point: connects to MongoDB, starts listening
+    └── test/                  # API tests (npm test)
 ```
 
 ---
@@ -225,7 +227,7 @@ Contributions are welcome! Here's how to get started:
 4. **Push** to the branch — `git push origin feature/your-feature-name`
 5. **Open** a Pull Request
 
-Please make sure your code follows the existing project style and passes linting (`npm run lint` in the `frontend` directory).
+Please make sure your code follows the existing project style and passes linting (`npm run lint` in the `frontend` directory) and the API tests (`npm test` in the `backend` directory — no database needed).
 
 ---
 
