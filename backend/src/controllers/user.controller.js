@@ -33,6 +33,9 @@ export async function getRecommendedUsers(req, res) {
       isOnboarded: true,
     };
 
+    // Aggregates skip the schema's select: false, so whitelist what other users may see
+    const publicFields = { $project: { fullName: 1, profilePic: 1, bio: 1, location: 1 } };
+
     let recommendedUsers = [];
 
     // 1. Try to find up to 6 random users from the same location (city)
@@ -40,6 +43,7 @@ export async function getRecommendedUsers(req, res) {
       recommendedUsers = await User.aggregate([
         { $match: { ...baseFilter, location: currentUser.location } },
         { $sample: { size: 6 } },
+        publicFields,
       ]);
     }
 
@@ -56,19 +60,13 @@ export async function getRecommendedUsers(req, res) {
       const additionalUsers = await User.aggregate([
         { $match: fallbackFilter },
         { $sample: { size: remainingCount } },
+        publicFields,
       ]);
 
       recommendedUsers = [...recommendedUsers, ...additionalUsers];
     }
 
-    // Remove the password and sensitive fields from the aggregation result manually
-    // because aggregates don't automatically trigger mongoose selects
-    const sanitizedUsers = recommendedUsers.map((user) => {
-      const { password, avatarData, avatarType, ...safeUser } = user;
-      return safeUser;
-    });
-
-    res.status(200).json(sanitizedUsers);
+    res.status(200).json(recommendedUsers);
   } catch (error) {
     console.error("Error in getRecommendedUsers controller:", error.message);
     res.status(500).json({ message: "Internal server error" });
@@ -137,6 +135,10 @@ export async function sendFriendRequest(req, res) {
 
     res.status(201).json(friendRequest);
   } catch (error) {
+    // A concurrent duplicate (e.g. double click) slipped past the check above
+    if (error.code === 11000) {
+      return res.status(400).json({ message: "Friend request already pending" });
+    }
     console.error("Error in sendFriendRequest controller:", error.message);
     res.status(500).json({ message: "Internal server error" });
   }

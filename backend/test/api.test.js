@@ -46,7 +46,7 @@ User.findById = (id) => query(toDoc(users.get(String(id))));
 User.findOne = ({ email }) =>
   query(toDoc([...users.values()].find((u) => u.email === email)));
 User.create = async (data) => {
-  const u = { _id: newId(), friends: [], ...data };
+  const u = { friends: [], ...data, _id: String(data._id ?? newId()) };
   users.set(u._id, u);
   return toDoc(u);
 };
@@ -105,6 +105,35 @@ test("signup sets an httpOnly, SameSite=Strict session cookie", async () => {
   assert.equal((await res.json()).user.password, undefined);
 });
 
+test("signup saves no account when Stream is down, so a retry works", async () => {
+  const upsert = StreamChat.getInstance().upsertUser;
+  StreamChat.getInstance().upsertUser = async () => {
+    throw new Error("Stream down");
+  };
+  const body = { fullName: "Bo", email: "bo@example.com", password: "secret123" };
+  try {
+    assert.equal((await send("POST", "/api/auth/signup", { body })).status, 500);
+  } finally {
+    StreamChat.getInstance().upsertUser = upsert;
+  }
+  assert.equal((await send("POST", "/api/auth/signup", { body })).status, 201);
+});
+
+test("concurrent duplicate signup returns 400, not 500", async () => {
+  const create = User.create;
+  User.create = async () => {
+    throw Object.assign(new Error("E11000 duplicate key"), { code: 11000 });
+  };
+  try {
+    const res = await send("POST", "/api/auth/signup", {
+      body: { fullName: "Cy", email: "cy@example.com", password: "secret123" },
+    });
+    assert.equal(res.status, 400);
+  } finally {
+    User.create = create;
+  }
+});
+
 test("login works and never returns the password", async () => {
   const res = await send("POST", "/api/auth/login", {
     body: { email: "ana@example.com", password: "secret123" },
@@ -139,6 +168,35 @@ test("malformed :id returns 400 on every :id route", async () => {
   ]) {
     assert.equal((await send(method, path, { cookie })).status, 400, `${method} ${path}`);
   }
+});
+
+test("recommended users expose only public profile fields", async () => {
+  const me = addUser({ email: "rec@example.com", location: "Pune" });
+  addUser({ email: "secret@example.com", password: "hash", isOnboarded: true, location: "Pune", bio: "hi" });
+  // Applies the pipeline's $project like Mongo would; everything else is ignored
+  User.aggregate = async (pipeline) => {
+    const fields = Object.keys(pipeline.find((s) => s.$project)?.$project ?? {});
+    return [...users.values()]
+      .filter((u) => u.isOnboarded)
+      .map((u) => Object.fromEntries(Object.entries(u).filter(([k]) => k === "_id" || fields.includes(k))));
+  };
+
+  const res = await send("GET", "/api/users", { cookie: cookieFor(me) });
+  assert.equal(res.status, 200);
+  const [user] = await res.json();
+  assert.deepEqual(Object.keys(user).sort(), ["_id", "bio", "fullName", "location"]);
+});
+
+test("double-clicked friend request returns 400, not 500", async () => {
+  const me = addUser({ email: "dbl@example.com" });
+  const them = addUser({ email: "dbl2@example.com" });
+  FriendRequest.findOne = async () => null; // both clicks pass the existence check
+  FriendRequest.create = async () => {
+    throw Object.assign(new Error("E11000 duplicate key"), { code: 11000 });
+  };
+
+  const res = await send("POST", `/api/users/friend-request/${them._id}`, { cookie: cookieFor(me) });
+  assert.equal(res.status, 400);
 });
 
 test("removing a friend also deletes their friend request, so they can re-add", async () => {

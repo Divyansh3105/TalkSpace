@@ -1,6 +1,7 @@
 import { upsertStreamUser } from "../lib/stream.js";
 import User from "../Models/User.js";
 import jwt from "jsonwebtoken";
+import mongoose from "mongoose";
 
 // Request bodies are already checked by the Zod schemas in auth.route.js
 
@@ -32,17 +33,17 @@ export async function signup(req, res) {
     const seed = Math.random().toString(36).substring(2, 10);
     const randomAvatar = `https://api.dicebear.com/9.x/personas/svg?seed=${seed}`;
 
+    // Create the Stream user first: if Stream is down, no account is saved
+    // and the person can simply retry
+    const _id = new mongoose.Types.ObjectId();
+    await upsertStreamUser({ id: _id.toString(), name: fullName, image: randomAvatar });
+
     const newUser = await User.create({
+      _id,
       fullName,
       email,
       password,
       profilePic: randomAvatar,
-    });
-
-    await upsertStreamUser({
-      id: newUser._id.toString(),
-      name: newUser.fullName,
-      image: newUser.profilePic,
     });
 
     setAuthCookie(res, newUser._id);
@@ -50,6 +51,10 @@ export async function signup(req, res) {
     const { password: _pw, ...safeNewUser } = newUser.toObject();
     res.status(201).json({ success: true, user: safeNewUser });
   } catch (error) {
+    // Same email signed up concurrently and won the unique index
+    if (error.code === 11000) {
+      return res.status(400).json({ message: "Email already in use" });
+    }
     console.error("Signup error:", error);
     res.status(500).json({ message: "Internal server error" });
   }

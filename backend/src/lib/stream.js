@@ -9,21 +9,10 @@ if (!apiKey || !apiSecret) {
 
 const streamClient = StreamChat.getInstance(apiKey, apiSecret);
 
+// Both throw on failure; callers turn that into a 500 rather than carrying on half-synced
 export const upsertStreamUser = async (userData) => {
-  try {
-    await streamClient.upsertUser(userData);
-    return userData;
-  } catch (error) {
-    console.error("Error upserting Stream user:", error);
-  }
+  await streamClient.upsertUser(userData);
+  return userData;
 };
 
-export const generateStreamToken = (userId) => {
-  try {
-    const userIdStr = userId.toString();
-
-    return streamClient.createToken(userIdStr);
-  } catch (error) {
-    console.error("Error generating Stream token:", error);
-  }
-};
+export const generateStreamToken = (userId) => streamClient.createToken(userId.toString());

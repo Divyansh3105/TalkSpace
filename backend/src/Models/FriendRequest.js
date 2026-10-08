@@ -23,6 +23,10 @@ const friendRequestSchema = new mongoose.Schema(
   },
 );
 
-const FriendRequest = mongoose.model("FriendRequest", friendRequestSchema);
+// One request per direction; stops double-click duplicates.
+// ponytail: A→B and B→A sent at the same instant can still both land; needs a sorted-pair key if that matters
+friendRequestSchema.index({ sender: 1, recipient: 1 }, { unique: true });
+
+const FriendRequest =mongoose.model("FriendRequest", friendRequestSchema);
 
 export default FriendRequest;
