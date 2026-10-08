@@ -6,7 +6,6 @@ import path from "path";
 import authRoutes from "./routes/auth.route.js";
 import userRoutes from "./routes/user.route.js";
 import chatRoutes from "./routes/chat.route.js";
-import { sanitizeInput } from "./middleware/sanitize.middleware.js";
 import rateLimit from "express-rate-limit";
 import { env } from "./lib/env.js";
 
@@ -23,7 +22,6 @@ app.use(cors({ origin: env.CORS_ORIGIN, credentials: true }));
 
 app.use(express.json({ limit: "200kb" })); // room for a downscaled avatar upload
 app.use(cookieParser());
-app.use(sanitizeInput);
 
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes

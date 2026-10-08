@@ -38,7 +38,7 @@ Built with a modern tech stack, TalkSpace integrates the [Stream](https://getstr
 - 🔔 **Notifications** — Friend request notifications with optimistic UI updates
 - ⚙️ **Settings Dashboard** — Full-page settings hub with visual Theme Selector (DaisyUI themes)
 - 📱 **Mobile First** — PWA support and sleek iOS-like bottom tab navigation for phones
-- 🛡️ **Production Ready** — Rate limiting, input sanitization, error boundaries, and CI/CD pipelines
+- 🛡️ **Production Ready** — Rate limiting, input validation, error boundaries, and CI/CD pipelines
 - ⚡ **Performance Optimized** — Lazy loading, code splitting, and suspense for heavy SDKs
 
 ---
