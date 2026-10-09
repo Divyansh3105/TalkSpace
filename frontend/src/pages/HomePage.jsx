@@ -21,6 +21,7 @@ import useStreamPresence from "../hooks/useStreamPresence";
 import FriendCardSkeleton from "../components/skeletons/FriendCardSkeleton";
 import UserCardSkeleton from "../components/skeletons/UserCardSkeleton";
 import toast from "react-hot-toast";
+import Avatar from "../components/Avatar";
 
 const HomePage = () => {
   const queryClient = useQueryClient();
@@ -104,177 +105,151 @@ const HomePage = () => {
       )
     : recommendedUsers;
 
+  const gridEmpty = (title, hint) => (
+    <div className="panel p-8 text-center">
+      <h3 className="font-semibold">{title}</h3>
+      <p className="text-sm text-base-content/60 mt-1">{hint}</p>
+    </div>
+  );
+
   return (
     <div className="p-4 sm:p-6 lg:p-8">
-      <div className="container mx-auto space-y-10">
+      <div className="mx-auto max-w-6xl space-y-12">
         {/* WELCOME HEADER */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-base-300">
+        <header className="flex flex-col md:flex-row md:items-end justify-between gap-5">
           <div>
-            <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">
+            <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-balance">
               {greeting}, <span className="text-primary">{firstName}!</span>
             </h1>
-            <p className="text-base-content/60 mt-1 text-sm">
-              Here's what's happening with your network today.
+            <p className="text-base-content/60 mt-2 text-sm">
+              {loadingFriends ? (
+                "Here's what's happening with your network today."
+              ) : (
+                <>
+                  You have <span className="font-semibold text-base-content tabular-nums">{friends.length}</span>{" "}
+                  friend{friends.length !== 1 && "s"}
+                  {pendingRequestsCount > 0 && (
+                    <>
+                      {" "}and{" "}
+                      <Link to="/notifications" className="link link-primary font-semibold no-underline hover:underline underline-offset-4">
+                        {pendingRequestsCount} pending request{pendingRequestsCount !== 1 && "s"}
+                      </Link>
+                    </>
+                  )}
+                  .
+                </>
+              )}
             </p>
           </div>
 
-          {/* QUICK STATS */}
-          <div className="flex gap-3">
-            <div className="stat glass-panel hover-lift rounded-box p-3 min-w-24">
-              <div className="stat-title text-xs">Friends</div>
-              <div className="stat-value text-2xl text-primary">
-                {loadingFriends ? (
-                  <span className="loading loading-spinner loading-xs" />
-                ) : (
-                  friends.length
-                )}
-              </div>
-            </div>
-
-            <Link
-              to="/notifications"
-              className="stat glass-panel hover-lift rounded-box p-3 min-w-24 cursor-pointer"
-            >
-              <div className="stat-title text-xs">Requests</div>
-              <div className="stat-value text-2xl flex items-center gap-1">
-                {pendingRequestsCount}
-                {pendingRequestsCount > 0 && (
-                  <span className="badge badge-error badge-sm align-middle">
-                    new
-                  </span>
-                )}
-              </div>
-            </Link>
-          </div>
-        </div>
-
-        {/* Search Bar */}
-        <div className="relative">
-          <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 size-5 opacity-50" />
-          <input
-            id="home-search"
-            type="text"
-            placeholder="Search by name or location..."
-            className="input input-bordered w-full pl-10"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </div>
-
-        <div>
-          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">
-            Your Friends
-          </h2>
-        </div>
-
-        {loadingFriends ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <FriendCardSkeleton key={i} />
-            ))}
-          </div>
-        ) : filteredFriends.length === 0 ? (
-          query ? (
-            <div className="card bg-base-200 p-6 text-center">
-              <p className="text-base-content opacity-70">
-                No friends match "{searchQuery}"
-              </p>
-            </div>
-          ) : (
-            <NoFriendsFound />
-          )
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {filteredFriends.map((friend) => (
-              <FriendCard key={friend._id} friend={friend} isOnline={isOnline(friend._id)} />
-            ))}
-          </div>
-        )}
+          <label className="input input-bordered flex items-center gap-2 w-full md:max-w-sm bg-base-200/60">
+            <SearchIcon className="size-4 text-base-content/50" />
+            <input
+              id="home-search"
+              type="search"
+              placeholder="Search by name or location"
+              aria-label="Search people"
+              className="grow min-w-0"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </label>
+        </header>
 
         <section>
-          <div className="mb-6 sm:mb-8">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-              <div>
-                <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">
-                  Meet New Users
-                </h2>
-                <p className="opacity-70">
-                  Discover perfect friends based on your profile
-                </p>
-              </div>
+          <div className="flex items-baseline justify-between mb-4">
+            <h2 className="text-xl sm:text-2xl font-bold tracking-tight">Your Friends</h2>
+            {friends.length > 0 && (
+              <Link to="/friends" className="text-sm font-medium text-primary hover:underline underline-offset-4">
+                See all
+              </Link>
+            )}
+          </div>
+
+          {loadingFriends ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <FriendCardSkeleton key={i} />
+              ))}
             </div>
+          ) : filteredFriends.length === 0 ? (
+            query ? (
+              gridEmpty(`No friends match "${searchQuery}"`, "Try a different search term.")
+            ) : (
+              <NoFriendsFound />
+            )
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {filteredFriends.map((friend) => (
+                <FriendCard key={friend._id} friend={friend} isOnline={isOnline(friend._id)} />
+              ))}
+            </div>
+          )}
+        </section>
+
+        <section>
+          <div className="mb-4">
+            <h2 className="text-xl sm:text-2xl font-bold tracking-tight">Meet New Users</h2>
+            <p className="text-sm text-base-content/60 mt-1">
+              Discover perfect friends based on your profile
+            </p>
           </div>
 
           {loadingUsers ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {Array.from({ length: 6 }).map((_, i) => (
                 <UserCardSkeleton key={i} />
               ))}
             </div>
           ) : filteredRecommendedUsers.length === 0 ? (
-            <div className="card bg-base-200 p-6 text-center">
-              <h3 className="font-semibold text-lg mb-2">
-                {query
-                  ? `No users match "${searchQuery}"`
-                  : "No recommendations available"}
-              </h3>
-              <p className="text-base-content opacity-70">
-                {query
-                  ? "Try a different search term."
-                  : "Check back later for new friends!"}
-              </p>
-            </div>
+            query
+              ? gridEmpty(`No users match "${searchQuery}"`, "Try a different search term.")
+              : gridEmpty("No recommendations available", "Check back later for new friends!")
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {filteredRecommendedUsers.map((user) => {
                 const hasRequestBeenSent = outgoingRequestsIds.has(user._id);
 
                 return (
-                  <div key={user._id} className="card glass-panel hover-lift">
-                    <div className="card-body p-5 space-y-4">
-                      <div className="flex items-center gap-3">
-                        <div className="avatar size-16 rounded-full">
-                          <img src={user.profilePic} alt={user.fullName} />
-                        </div>
-
-                        <div>
-                          <h3 className="font-semibold text-lg">
-                            {user.fullName}
-                          </h3>
-                          {user.location && (
-                            <div className="flex items-center text-xs opacity-70 mt-1">
-                              <MapPinIcon className="size-3 mr-1" />
-                              {user.location}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-
-                      {user.bio && (
-                        <p className="text-sm opacity-70">{user.bio}</p>
-                      )}
-
-                      {/* Action button */}
-                      <button
-                        className={`btn w-full mt-2 ${
-                          hasRequestBeenSent ? "btn-disabled" : "btn-primary"
-                        } `}
-                        onClick={() => sendRequestMutation(user._id)}
-                        disabled={hasRequestBeenSent || isPending}
-                      >
-                        {hasRequestBeenSent ? (
-                          <>
-                            <CheckCircleIcon className="size-4 mr-2" />
-                            Request Sent
-                          </>
-                        ) : (
-                          <>
-                            <UserPlusIcon className="size-4 mr-2" />
-                            Send Friend Request
-                          </>
+                  <div key={user._id} className="panel panel-interactive p-5 flex flex-col gap-4">
+                    <div className="flex items-center gap-3">
+                      <Avatar src={user.profilePic} name={user.fullName} className="size-14" />
+                      <div className="min-w-0">
+                        <h3 className="font-semibold truncate">{user.fullName}</h3>
+                        {user.location && (
+                          <p className="flex items-center gap-1 text-xs text-base-content/60 mt-0.5 truncate">
+                            <MapPinIcon className="size-3 shrink-0" />
+                            {user.location}
+                          </p>
                         )}
-                      </button>
+                      </div>
                     </div>
+
+                    {user.bio && (
+                      <p className="text-sm text-base-content/70 line-clamp-2">{user.bio}</p>
+                    )}
+
+                    <button
+                      className={`btn btn-sm w-full mt-auto gap-1.5 ${
+                        hasRequestBeenSent
+                          ? "btn-ghost text-success !bg-success/10 disabled:!text-success"
+                          : "bg-primary/10 text-primary border-transparent hover:bg-primary hover:text-primary-content hover:border-transparent"
+                      }`}
+                      onClick={() => sendRequestMutation(user._id)}
+                      disabled={hasRequestBeenSent || isPending}
+                    >
+                      {hasRequestBeenSent ? (
+                        <>
+                          <CheckCircleIcon className="size-4" />
+                          Request Sent
+                        </>
+                      ) : (
+                        <>
+                          <UserPlusIcon className="size-4" />
+                          Send Friend Request
+                        </>
+                      )}
+                    </button>
                   </div>
                 );
               })}

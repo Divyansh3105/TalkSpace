@@ -1,12 +1,15 @@
+import { useState } from "react";
 import { Link } from "react-router";
 import { MessageSquareIcon, UserMinusIcon } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { removeFriend } from "../lib/api";
-import OnlineBadge from "./OnlineBadge";
+import Avatar from "./Avatar";
 import toast from "react-hot-toast";
 
 const FriendCard = ({ friend, isOnline = false }) => {
   const queryClient = useQueryClient();
+  // Unfriending is destructive: first click arms the button, second click confirms.
+  const [confirming, setConfirming] = useState(false);
 
   const { mutate: unfriend, isPending: isUnfriending } = useMutation({
     mutationFn: () => removeFriend(friend._id),
@@ -28,54 +31,47 @@ const FriendCard = ({ friend, isOnline = false }) => {
   });
 
   return (
-    <div className="card glass-panel hover-lift">
-      <div className="card-body p-4">
-        {/* USER INFO */}
-        <div className="flex items-center gap-3 mb-3">
-          {/* Avatar with online indicator dot overlaid on the corner */}
-          <div className="relative shrink-0">
-            <div className="avatar size-12">
-              <img
-                src={friend.profilePic}
-                alt={friend.fullName}
-                className="rounded-full"
-              />
-            </div>
-            {/* Corner presence dot */}
-            <span className="absolute bottom-0 right-0">
-              <OnlineBadge isOnline={isOnline} showLabel={false} size="sm" />
+    <div className="panel panel-interactive p-4 flex flex-col gap-4">
+      <div className="flex items-center gap-3">
+        <Avatar
+          src={friend.profilePic}
+          name={friend.fullName}
+          isOnline={isOnline}
+        />
+        <div className="flex-1 min-w-0">
+          <h3 className="font-semibold truncate">{friend.fullName}</h3>
+          <p className="text-xs text-base-content/60 truncate">
+            <span className={isOnline ? "text-success font-medium" : ""}>
+              {isOnline ? "Online" : "Offline"}
             </span>
-          </div>
-
-          <div className="flex-1 min-w-0">
-            <h3 className="font-semibold truncate">{friend.fullName}</h3>
-            {friend.location && (
-              <p className="text-xs opacity-60 truncate">{friend.location}</p>
-            )}
-            {/* Inline Online / Offline label */}
-            <OnlineBadge isOnline={isOnline} showLabel size="sm" />
-          </div>
+            {friend.location && ` · ${friend.location}`}
+          </p>
         </div>
+      </div>
 
-        {/* QUICK ACTIONS */}
-        <div className="flex gap-2">
-          <Link
-            to={`/chat/${friend._id}`}
-            className="btn btn-outline btn-sm flex-1 gap-1"
-            title="Chat"
-          >
-            <MessageSquareIcon className="size-4" />
-            Chat
-          </Link>
-          <button
-            className="btn btn-ghost btn-sm text-error px-2"
-            title="Unfriend"
-            onClick={() => unfriend()}
-            disabled={isUnfriending}
-          >
-            <UserMinusIcon className="size-4" />
-          </button>
-        </div>
+      <div className="flex gap-2 mt-auto">
+        <Link
+          to={`/chat/${friend._id}`}
+          className="btn btn-primary btn-sm flex-1 gap-1.5"
+        >
+          <MessageSquareIcon className="size-4" />
+          Message
+        </Link>
+        <button
+          className={`btn btn-sm ${
+            confirming
+              ? "btn-error"
+              : "btn-ghost btn-square text-base-content/50 hover:text-error"
+          }`}
+          title={confirming ? "Click again to remove" : "Unfriend"}
+          aria-label={confirming ? `Confirm removing ${friend.fullName}` : `Unfriend ${friend.fullName}`}
+          onClick={() => (confirming ? unfriend() : setConfirming(true))}
+          onBlur={() => setConfirming(false)}
+          onMouseLeave={() => setConfirming(false)}
+          disabled={isUnfriending}
+        >
+          {confirming ? "Remove" : <UserMinusIcon className="size-4" />}
+        </button>
       </div>
     </div>
   );
