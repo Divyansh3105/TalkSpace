@@ -1,6 +1,6 @@
 const NotificationSkeleton = () => {
   return (
-    <div className="card bg-base-200 shadow-sm">
+    <div className="panel">
       <div className="card-body p-4">
         <div className="flex items-center justify-between">
           {/* Avatar + name */}

@@ -6,47 +6,86 @@
   body {
     font-family: 'Outfit', sans-serif;
   }
+
+  /* Browser surfaces follow the active DaisyUI theme */
+  ::selection {
+    background-color: oklch(var(--p) / 0.3);
+  }
+
+  input,
+  textarea {
+    caret-color: oklch(var(--p));
+  }
+
+  :focus-visible {
+    outline: 2px solid oklch(var(--p));
+    outline-offset: 2px;
+  }
+
+  html {
+    scrollbar-color: oklch(var(--bc) / 0.2) transparent;
+    scrollbar-width: thin;
+  }
 }
 
 /* ============================================================
-   Premium UI Utilities
+   Surfaces
    ============================================================ */
 
-.glass-panel {
-  @apply bg-base-100/70 backdrop-blur-md border border-base-content/10 shadow-sm;
+/* Raised content surface: cards, form sections, list containers */
+.panel {
+  @apply bg-base-200/60 border border-base-content/[0.06] rounded-2xl;
 }
 
-.hover-lift {
-  @apply transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/10;
+/* Interactive panel: border responds instead of the card jumping */
+.panel-interactive {
+  @apply transition-colors duration-200 hover:border-base-content/15;
 }
 
 /* ============================================================
-   Stream Chat – Theme-aware overrides
-   Uses DaisyUI/oklch CSS variables so chat UI matches the
-   currently selected theme automatically.
+   Stream Chat – map Stream's tokens onto the active DaisyUI theme
    ============================================================ */
+
+.str-chat {
+  --str-chat__font-family: 'Outfit', sans-serif;
+  --str-chat__primary-color: oklch(var(--p));
+  --str-chat__active-primary-color: oklch(var(--p) / 0.85);
+  --str-chat__primary-color-low-emphasis: oklch(var(--p) / 0.5);
+  --str-chat__on-primary-color: oklch(var(--pc));
+  --str-chat__primary-overlay-color: oklch(var(--p) / 0.6);
+  --str-chat__background-color: oklch(var(--b1));
+  --str-chat__secondary-background-color: oklch(var(--b1));
+  --str-chat__primary-surface-color: oklch(var(--p) / 0.15);
+  --str-chat__primary-surface-color-low-emphasis: oklch(var(--p) / 0.08);
+  --str-chat__surface-color: oklch(var(--b3));
+  --str-chat__secondary-surface-color: oklch(var(--b2));
+  --str-chat__tertiary-surface-color: oklch(var(--b2));
+  --str-chat__text-color: oklch(var(--bc));
+  --str-chat__text-low-emphasis-color: oklch(var(--bc) / 0.6);
+  --str-chat__disabled-color: oklch(var(--bc) / 0.3);
+  --str-chat__on-disabled-color: oklch(var(--b1));
+  --str-chat__danger-color: oklch(var(--er));
+  --str-chat__unread-badge-color: oklch(var(--er));
+  --str-chat__on-unread-badge-color: oklch(var(--erc));
+  --str-chat__info-color: oklch(var(--su));
+  --str-chat__message-highlight-color: oklch(var(--wa) / 0.2);
+  --str-chat__overlay-color: oklch(var(--b1) / 0.9);
+  --str-chat__box-shadow-color: rgb(0 0 0 / 0.18);
+
+  --str-chat__own-message-bubble-background-color: oklch(var(--p));
+  --str-chat__own-message-bubble-color: oklch(var(--pc));
+  --str-chat__message-bubble-background-color: oklch(var(--bc) / 0.09);
+  --str-chat__message-bubble-color: oklch(var(--bc));
+  --str-chat__message-bubble-border-radius: 1.125rem;
+
+  --str-chat__message-textarea-background-color: oklch(var(--bc) / 0.06);
+  --str-chat__message-textarea-color: oklch(var(--bc));
+  --str-chat__message-textarea-border-radius: 1.25rem;
+  --str-chat__message-input-background-color: oklch(var(--b1));
+}
 
 .str-chat__channel {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: oklch(var(--b2, 0.95 0 0));
   height: 100%;
-}
-
-.str-chat__container {
-  max-width: 1400px;
-  width: 100%;
-  height: 90% !important;
-  margin: 0 auto !important;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  overflow: hidden;
-}
-
-.str-chat__list {
-  background-color: oklch(var(--b1, 1 0 0));
-  padding: 12px;
 }
 
 .str-chat__list-notifications {
@@ -54,41 +93,36 @@
 }
 
 .str-chat__message-input {
-  border-top: 1px solid oklch(var(--b3, 0.9 0 0));
-  background-color: oklch(var(--b1, 1 0 0));
+  border-top: 1px solid oklch(var(--bc) / 0.08);
 }
 
-/* Ensure typed text is visible in the chat input area across all themes */
-.str-chat__message-input textarea,
-.str-chat__textarea textarea {
-  color: oklch(var(--bc, 0.2 0 0)) !important;
-  background-color: transparent !important;
+/* Own-bubble links and timestamps must stay readable on the primary fill */
+.str-chat__message--me [class*="str-chat__message-attachment-card--"] {
+  color: oklch(var(--pc));
 }
 
-.str-chat__message-input textarea::placeholder,
-.str-chat__textarea textarea::placeholder {
-  color: oklch(var(--bc, 0.2 0 0) / 0.5) !important;
+.str-chat__message--me .str-chat__message-bubble a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
-/* Message bubbles that follow the theme */
-.str-chat__message-simple__content {
-  color: oklch(var(--bc, 0.2 0 0));
-}
-
-/* Smooth page transitions for lazy-loaded routes */
-@keyframes fadeIn {
+/* Auth card settles over the stage edge once on load; it is visible from the first frame */
+@keyframes settle {
   from {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+    transform: translate3d(1.5rem, 0, 0);
+    box-shadow: 0 0 0 0 rgb(0 0 0 / 0);
   }
 }
 
-.animate-fade-in {
-  animation: fadeIn 0.3s ease-out;
+.animate-settle {
+  animation: settle 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-settle {
+    animation: none;
+  }
 }
 
 /* Custom scrollbar styling */

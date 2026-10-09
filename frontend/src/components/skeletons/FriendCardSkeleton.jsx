@@ -1,6 +1,6 @@
 const FriendCardSkeleton = () => {
   return (
-    <div className="card bg-base-200">
+    <div className="panel">
       <div className="card-body p-4">
         {/* Avatar + name row */}
         <div className="flex items-center gap-3 mb-3">

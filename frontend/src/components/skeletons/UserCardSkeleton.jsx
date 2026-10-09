@@ -1,6 +1,6 @@
 const UserCardSkeleton = () => {
   return (
-    <div className="card bg-base-200">
+    <div className="panel">
       <div className="card-body p-5 space-y-4">
         {/* Avatar + name */}
         <div className="flex items-center gap-3">

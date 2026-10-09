@@ -71,7 +71,12 @@ const App = () => {
           </Suspense>
         </AuthProvider>
 
-        <Toaster />
+        <Toaster
+          toastOptions={{
+            className:
+              "!bg-base-200 !text-base-content !text-sm !rounded-xl !border !border-base-content/10 !shadow-lg",
+          }}
+        />
       </div>
     </ErrorBoundary>
   );
