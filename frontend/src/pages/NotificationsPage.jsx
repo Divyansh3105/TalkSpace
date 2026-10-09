@@ -6,17 +6,22 @@ import {
   getFriendRequests,
   getOutgoingFriendReqs,
 } from "../lib/api";
-import {
-  BellIcon,
-  ClockIcon,
-  MessageSquareIcon,
-  UserCheckIcon,
-  XCircleIcon,
-  XIcon,
-} from "lucide-react";
+import { Link } from "react-router";
+import { ClockIcon, MessageSquareIcon, XIcon } from "lucide-react";
+import Avatar from "../components/Avatar";
 import NoNotificationsFound from "../components/NoNotificationsFound";
 import NotificationSkeleton from "../components/skeletons/NotificationSkeleton";
 import toast from "react-hot-toast";
+
+const Section = ({ title, count, children }) => (
+  <section>
+    <h2 className="flex items-baseline gap-2 text-sm font-semibold text-base-content/70 mb-3">
+      {title}
+      {count > 0 && <span className="tabular-nums text-base-content/40">{count}</span>}
+    </h2>
+    <ul className="panel divide-y divide-base-content/[0.06]">{children}</ul>
+  </section>
+);
 
 const NotificationsPage = () => {
   const queryClient = useQueryClient();
@@ -132,8 +137,8 @@ const NotificationsPage = () => {
 
   return (
     <div className="p-4 sm:p-6 lg:p-8">
-      <div className="container mx-auto max-w-4xl space-y-8">
-        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight mb-6">
+      <div className="mx-auto max-w-3xl space-y-8">
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
           Notifications
         </h1>
 
@@ -146,160 +151,85 @@ const NotificationsPage = () => {
         ) : (
           <>
             {incomingRequests.length > 0 && (
-              <section className="space-y-4">
-                <h2 className="text-xl font-semibold flex items-center gap-2">
-                  <UserCheckIcon className="h-5 w-5 text-primary" />
-                  Friend Requests
-                  <span className="badge badge-primary ml-2">
-                    {incomingRequests.length}
-                  </span>
-                </h2>
-
-                <div className="space-y-3">
-                  {incomingRequests.map((request) => (
-                    <div
-                      key={request._id}
-                      className="card glass-panel hover-lift border-l-4 border-l-primary"
-                    >
-                      <div className="card-body p-4">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <div className="avatar w-14 h-14 rounded-full bg-base-300">
-                              <img
-                                src={request.sender.profilePic}
-                                alt={request.sender.fullName}
-                              />
-                            </div>
-                            <div>
-                              <h3 className="font-semibold">
-                                {request.sender.fullName}
-                              </h3>
-                            </div>
-                          </div>
-
-                          <div className="flex gap-2">
-                            <button
-                              className="btn btn-primary btn-sm"
-                              onClick={() =>
-                                acceptRequestMutation(request._id)
-                              }
-                              disabled={isAccepting || isDeclining}
-                            >
-                              Accept
-                            </button>
-                            <button
-                              className="btn btn-ghost btn-sm text-error"
-                              onClick={() =>
-                                declineRequestMutation(request._id)
-                              }
-                              disabled={isAccepting || isDeclining}
-                            >
-                              <XCircleIcon className="h-4 w-4 mr-1" />
-                              Decline
-                            </button>
-                          </div>
-                        </div>
-                      </div>
+              <Section title="Friend Requests" count={incomingRequests.length}>
+                {incomingRequests.map((request) => (
+                  <li key={request._id} className="flex flex-wrap items-center gap-3 p-4">
+                    <Avatar src={request.sender.profilePic} name={request.sender.fullName} className="size-11" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm truncate">
+                        <span className="font-semibold">{request.sender.fullName}</span> wants to be friends
+                      </p>
                     </div>
-                  ))}
-                </div>
-              </section>
+                    <div className="flex gap-2 ml-auto">
+                      <button
+                        className="btn btn-ghost btn-sm"
+                        onClick={() => declineRequestMutation(request._id)}
+                        disabled={isAccepting || isDeclining}
+                      >
+                        Decline
+                      </button>
+                      <button
+                        className="btn btn-primary btn-sm"
+                        onClick={() => acceptRequestMutation(request._id)}
+                        disabled={isAccepting || isDeclining}
+                      >
+                        Accept
+                      </button>
+                    </div>
+                  </li>
+                ))}
+              </Section>
             )}
 
             {/* ACCEPTED REQS NOTIFICATIONS */}
             {acceptedRequests.length > 0 && (
-              <section className="space-y-4">
-                <h2 className="text-xl font-semibold flex items-center gap-2">
-                  <BellIcon className="h-5 w-5 text-success" />
-                  New Connections
-                </h2>
-
-                <div className="space-y-3">
-                  {acceptedRequests.map((notification) => (
-                    <div
-                      key={notification._id}
-                      className="card glass-panel hover-lift border-l-4 border-l-success"
-                    >
-                      <div className="card-body p-4">
-                        <div className="flex items-start gap-3">
-                          <div className="avatar mt-1 size-10 rounded-full">
-                            <img
-                              src={notification.recipient.profilePic}
-                              alt={notification.recipient.fullName}
-                            />
-                          </div>
-                          <div className="flex-1">
-                            <h3 className="font-semibold">
-                              {notification.recipient.fullName}
-                            </h3>
-                            <p className="text-sm my-1">
-                              {notification.recipient.fullName} accepted your
-                              friend request
-                            </p>
-                            <p className="text-xs flex items-center opacity-70">
-                              <ClockIcon className="h-3 w-3 mr-1" />
-                              Recently
-                            </p>
-                          </div>
-                          <div className="badge badge-success">
-                            <MessageSquareIcon className="h-3 w-3 mr-1" />
-                            New Friend
-                          </div>
-                        </div>
-                      </div>
+              <Section title="New Connections">
+                {acceptedRequests.map((notification) => (
+                  <li key={notification._id} className="flex items-center gap-3 p-4">
+                    <Avatar src={notification.recipient.profilePic} name={notification.recipient.fullName} className="size-11" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm truncate">
+                        <span className="font-semibold">{notification.recipient.fullName}</span> accepted your
+                        friend request
+                      </p>
+                      <p className="text-xs text-base-content/50 mt-0.5 flex items-center gap-1">
+                        <ClockIcon className="size-3" />
+                        Recently
+                      </p>
                     </div>
-                  ))}
-                </div>
-              </section>
+                    <Link
+                      to={`/chat/${notification.recipient._id}`}
+                      className="btn btn-sm bg-primary/10 text-primary border-transparent hover:bg-primary hover:text-primary-content hover:border-transparent gap-1.5"
+                    >
+                      <MessageSquareIcon className="size-4" />
+                      Message
+                    </Link>
+                  </li>
+                ))}
+              </Section>
             )}
+
             {/* OUTGOING / SENT REQUESTS */}
             {pendingOutgoing.length > 0 && (
-              <section className="space-y-4">
-                <h2 className="text-xl font-semibold flex items-center gap-2">
-                  <ClockIcon className="h-5 w-5 text-warning" />
-                  Sent Requests
-                  <span className="badge badge-warning ml-2">
-                    {pendingOutgoing.length}
-                  </span>
-                </h2>
-
-                <div className="space-y-3">
-                  {pendingOutgoing.map((req) => (
-                    <div
-                      key={req._id}
-                      className="card glass-panel hover-lift border-l-4 border-l-warning"
-                    >
-                      <div className="card-body p-4">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <div className="avatar w-12 h-12 rounded-full bg-base-300">
-                              <img
-                                src={req.recipient.profilePic}
-                                alt={req.recipient.fullName}
-                              />
-                            </div>
-                            <div>
-                              <h3 className="font-semibold">
-                                {req.recipient.fullName}
-                              </h3>
-                              <p className="text-xs opacity-60">Pending…</p>
-                            </div>
-                          </div>
-
-                          <button
-                            className="btn btn-ghost btn-sm text-error gap-1"
-                            onClick={() => cancelRequestMutation(req._id)}
-                            disabled={isCancelling}
-                          >
-                            <XIcon className="h-4 w-4" />
-                            Cancel
-                          </button>
-                        </div>
-                      </div>
+              <Section title="Sent Requests" count={pendingOutgoing.length}>
+                {pendingOutgoing.map((req) => (
+                  <li key={req._id} className="flex items-center gap-3 p-4">
+                    <Avatar src={req.recipient.profilePic} name={req.recipient.fullName} className="size-11" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold truncate">{req.recipient.fullName}</p>
+                      <p className="text-xs text-base-content/50 mt-0.5">Pending</p>
                     </div>
-                  ))}
-                </div>
-              </section>
+                    <button
+                      className="btn btn-ghost btn-sm text-base-content/70 hover:text-error gap-1"
+                      onClick={() => cancelRequestMutation(req._id)}
+                      disabled={isCancelling}
+                    >
+                      <XIcon className="size-4" />
+                      Cancel
+                    </button>
+                  </li>
+                ))}
+              </Section>
             )}
 
             {incomingRequests.length === 0 &&
