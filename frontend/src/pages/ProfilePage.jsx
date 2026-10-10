@@ -83,131 +83,124 @@ const ProfilePage = () => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
+  const field = "input input-bordered w-full bg-base-100";
+
   return (
     <div className="p-4 sm:p-6 lg:p-8">
-      <div className="container mx-auto max-w-4xl space-y-8">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
-              Your Profile
-            </h1>
-            <p className="text-base-content/60 mt-1 text-sm">
-              Update your personal information and languages.
-            </p>
+      <div className="mx-auto max-w-3xl space-y-8">
+        <header>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Your Profile</h1>
+          <p className="text-base-content/60 mt-1 text-sm">
+            Update your photo, name, bio and location.
+          </p>
+        </header>
+
+        <form onSubmit={handleSave} className="panel overflow-hidden">
+          {/* Identity */}
+          <div className="flex flex-col sm:flex-row items-center gap-5 p-6 border-b border-base-content/[0.06]">
+            <label
+              htmlFor="avatar-upload"
+              className="relative group cursor-pointer rounded-full focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2 focus-within:ring-offset-base-200"
+              title="Change photo"
+            >
+              {imagePreview ? (
+                <img
+                  src={imagePreview}
+                  alt="Profile preview"
+                  className="size-24 rounded-full object-cover bg-base-300"
+                />
+              ) : (
+                <div className="size-24 rounded-full bg-base-300 flex items-center justify-center text-base-content/30">
+                  <UserIcon className="size-10" />
+                </div>
+              )}
+              <span className="absolute inset-0 rounded-full bg-black/45 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                <CameraIcon className="size-6" />
+              </span>
+              <span className="absolute -bottom-0.5 -right-0.5 bg-primary text-primary-content p-1.5 rounded-full ring-4 ring-base-200">
+                <CameraIcon className="size-3.5" />
+              </span>
+              <input
+                type="file"
+                id="avatar-upload"
+                className="sr-only"
+                accept="image/*"
+                onChange={handleImageChange}
+              />
+            </label>
+
+            <div className="text-center sm:text-left min-w-0">
+              <h2 className="font-semibold text-lg truncate">{authUser?.fullName}</h2>
+              <p className="text-sm text-base-content/60 truncate">{authUser?.email}</p>
+              <label htmlFor="avatar-upload" className="text-sm font-medium text-primary cursor-pointer hover:underline underline-offset-4 mt-1 inline-block">
+                Change photo
+              </label>
+            </div>
           </div>
-        </div>
 
-        <form onSubmit={handleSave} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Left Column: Avatar & Quick Info */}
-            <div className="md:col-span-1 space-y-6">
-              <section className="glass-panel p-6 rounded-2xl flex flex-col items-center text-center space-y-4">
-                <div className="relative group cursor-pointer">
-                  <div className="avatar">
-                    <div className="w-32 rounded-full border-4 border-base-100 shadow-xl overflow-hidden bg-base-200">
-                      {imagePreview ? (
-                        <img
-                          src={imagePreview}
-                          alt="Profile preview"
-                          className="object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-base-content/30">
-                          <UserIcon className="size-12" />
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                  <label
-                    htmlFor="avatar-upload"
-                    className="absolute bottom-0 right-0 bg-primary text-primary-content p-2 rounded-full shadow-lg cursor-pointer hover:scale-110 transition-transform"
-                  >
-                    <CameraIcon className="size-5" />
-                  </label>
-                  <input
-                    type="file"
-                    id="avatar-upload"
-                    className="hidden"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                  />
-                </div>
-
-                <div>
-                  <h2 className="font-semibold text-lg">
-                    {authUser?.fullName}
-                  </h2>
-                  <p className="text-xs opacity-70 mt-1 truncate">
-                    {authUser?.email}
-                  </p>
-                </div>
-              </section>
-
-              <button
-                type="submit"
-                className="btn btn-primary w-full gap-2 hover-lift"
-                disabled={isPending}
-              >
-                {isPending ? (
-                  <span className="loading loading-spinner loading-xs" />
-                ) : (
-                  <SaveIcon className="size-4" />
-                )}
-                Save Changes
-              </button>
+          {/* Details */}
+          <div className="p-6 space-y-5">
+            <div>
+              <label htmlFor="fullName" className="block text-sm font-medium mb-1.5">
+                Full name
+              </label>
+              <input
+                id="fullName"
+                type="text"
+                name="fullName"
+                value={formData.fullName}
+                onChange={handleChange}
+                placeholder="Your name"
+                maxLength={100}
+                className={field}
+              />
             </div>
 
-            {/* Right Column: Form Fields */}
-            <div className="md:col-span-2 space-y-6">
-              <section className="glass-panel p-6 rounded-2xl space-y-6">
-                <h3 className="text-lg font-semibold border-b border-base-content/10 pb-2">
-                  Personal Details
-                </h3>
-
-                <div className="space-y-4">
-                  <div className="form-control">
-                    <label className="label text-xs font-semibold uppercase opacity-70">
-                      Full Name
-                    </label>
-                    <input
-                      type="text"
-                      name="fullName"
-                      value={formData.fullName}
-                      onChange={handleChange}
-                      placeholder="Your name"
-                      className="input input-bordered focus:ring-2 focus:ring-primary/50 transition-all font-medium"
-                    />
-                  </div>
-
-                  <div className="form-control">
-                    <label className="label text-xs font-semibold uppercase opacity-70">
-                      Bio
-                    </label>
-                    <textarea
-                      name="bio"
-                      value={formData.bio}
-                      onChange={handleChange}
-                      placeholder="Tell the world a bit about yourself"
-                      className="textarea textarea-bordered h-24 focus:ring-2 focus:ring-primary/50 transition-all font-medium resize-none"
-                    />
-                  </div>
-
-                  <div className="form-control">
-                    <label className="label text-xs font-semibold uppercase opacity-70">
-                      Location
-                    </label>
-                    <input
-                      type="text"
-                      name="location"
-                      value={formData.location}
-                      onChange={handleChange}
-                      placeholder="City, Country"
-                      className="input input-bordered focus:ring-2 focus:ring-primary/50 transition-all font-medium"
-                    />
-                  </div>
-                </div>
-              </section>
+            <div>
+              <div className="flex items-baseline justify-between mb-1.5">
+                <label htmlFor="bio" className="text-sm font-medium">Bio</label>
+                <span className="text-xs text-base-content/50 tabular-nums">
+                  {formData.bio.length}/300
+                </span>
+              </div>
+              <textarea
+                id="bio"
+                name="bio"
+                value={formData.bio}
+                onChange={handleChange}
+                placeholder="Tell the world a bit about yourself"
+                maxLength={300}
+                rows={3}
+                className="textarea textarea-bordered w-full bg-base-100 text-base resize-none"
+              />
             </div>
+
+            <div>
+              <label htmlFor="location" className="block text-sm font-medium mb-1.5">
+                Location
+              </label>
+              <input
+                id="location"
+                type="text"
+                name="location"
+                value={formData.location}
+                onChange={handleChange}
+                placeholder="City, Country"
+                maxLength={100}
+                className={field}
+              />
+            </div>
+          </div>
+
+          <div className="flex justify-end px-6 py-4 bg-base-content/[0.03] border-t border-base-content/[0.06]">
+            <button type="submit" className="btn btn-primary gap-2 min-w-36" disabled={isPending}>
+              {isPending ? (
+                <span className="loading loading-spinner loading-xs" />
+              ) : (
+                <SaveIcon className="size-4" />
+              )}
+              {isPending ? "Saving…" : "Save Changes"}
+            </button>
           </div>
         </form>
       </div>
