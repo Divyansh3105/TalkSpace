@@ -49,3 +49,6 @@ graphify-out/
 
 # TestSprite scratch output
 testsprite_tests/
+PRODUCT.md
+.impeccable/
+DESIGN.md
