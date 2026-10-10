@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router";
+import { Link, Navigate, useParams } from "react-router";
 import useAuthUser from "../hooks/useAuthUser";
 import { useQuery } from "@tanstack/react-query";
 import { getStreamToken } from "../lib/api";
@@ -37,7 +37,7 @@ const CallPage = () => {
 
   useEffect(() => {
     const initCall = async () => {
-      if (!tokenData.token || !authUser || !callId) return;
+      if (!tokenData?.token || !authUser || !callId) return;
 
       try {
 
@@ -76,20 +76,31 @@ const CallPage = () => {
   if (isLoading || isConnecting) return <PageLoader />;
 
   return (
-    <div className="h-screen flex flex-col items-center justify-center">
-      <div className="relative">
-        {client && call ? (
+    <div className="h-screen flex flex-col items-center justify-center bg-base-100">
+      {client && call ? (
+        <div className="relative w-full max-w-6xl">
           <StreamVideo client={client}>
             <StreamCall call={call}>
               <CallContent />
             </StreamCall>
           </StreamVideo>
-        ) : (
-          <div className="flex items-center justify-center h-full">
-            <p>Could not initialize call. Please refresh or try again later.</p>
+        </div>
+      ) : (
+        <div className="text-center space-y-4 px-4">
+          <div>
+            <h1 className="text-xl font-semibold">Couldn't join the call</h1>
+            <p className="text-sm text-base-content/60 mt-1">
+              Check your connection and try again.
+            </p>
           </div>
-        )}
-      </div>
+          <div className="flex justify-center gap-2">
+            <Link to="/" className="btn btn-ghost btn-sm">Back to Home</Link>
+            <button onClick={() => window.location.reload()} className="btn btn-primary btn-sm">
+              Try again
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
@@ -98,9 +109,7 @@ const CallContent = () => {
   const { useCallCallingState } = useCallStateHooks();
   const callingState = useCallCallingState();
 
-  const navigate = useNavigate();
-
-  if (callingState === CallingState.LEFT) return navigate("/");
+  if (callingState === CallingState.LEFT) return <Navigate to="/" replace />;
 
   return (
     <StreamTheme>
