@@ -34,7 +34,7 @@ const App = () => {
 
   return (
     <ErrorBoundary>
-      <div className="h-screen bg-base-100" data-theme={theme}>
+      <div className="min-h-dvh bg-base-100" data-theme={theme}>
         <AuthProvider isAuthenticated={isAuthenticated} isOnboarded={isOnboarded}>
           <Suspense fallback={<PageLoader />}>
             <Routes>

@@ -1,3 +1,4 @@
+import useDocumentTitle from "../hooks/useDocumentTitle";
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import useAuthUser from "../hooks/useAuthUser";
@@ -32,6 +33,7 @@ async function toAvatarDataUrl(file) {
 }
 
 const ProfilePage = () => {
+  useDocumentTitle("Profile");
   const { authUser } = useAuthUser();
   const queryClient = useQueryClient();
 

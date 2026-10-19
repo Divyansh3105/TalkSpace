@@ -1,3 +1,4 @@
+import useDocumentTitle from "../hooks/useDocumentTitle";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { getUserFriends } from "../lib/api";
@@ -8,6 +9,7 @@ import useStreamPresence from "../hooks/useStreamPresence";
 import FriendCard from "../components/FriendCard";
 
 const FriendsPage = () => {
+  useDocumentTitle("Friends");
   const [searchQuery, setSearchQuery] = useState("");
 
   const { data: friends = [], isLoading } = useQuery({

@@ -1,3 +1,4 @@
+import useDocumentTitle from "../hooks/useDocumentTitle";
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
 import useAuthUser from "../hooks/useAuthUser";
@@ -61,6 +62,7 @@ const ChatHeader = ({ onVideoCall }) => {
 };
 
 const ChatPage = () => {
+  useDocumentTitle("Chat");
   const { id: targetUserId } = useParams();
 
   const [chatClient, setChatClient] = useState(null);

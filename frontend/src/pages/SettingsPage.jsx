@@ -1,8 +1,10 @@
+import useDocumentTitle from "../hooks/useDocumentTitle";
 import { useThemeStore } from "../store/useThemeStore";
 import { THEMES } from "../constants";
 import { CheckIcon } from "lucide-react";
 
 const SettingsPage = () => {
+  useDocumentTitle("Settings");
   const { theme, setTheme } = useThemeStore();
 
   return (

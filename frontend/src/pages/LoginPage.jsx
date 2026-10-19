@@ -1,3 +1,4 @@
+import useDocumentTitle from "../hooks/useDocumentTitle";
 import { useState } from "react";
 import { Link } from "react-router";
 import useLogin from "../hooks/useLogin";
@@ -5,6 +6,7 @@ import AuthStage from "../components/AuthStage";
 import PasswordInput from "../components/PasswordInput";
 
 const LoginPage = () => {
+  useDocumentTitle("Log in");
   const [loginData, setLoginData] = useState({
     email: "",
     password: "",

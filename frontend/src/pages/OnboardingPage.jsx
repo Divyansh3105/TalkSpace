@@ -1,3 +1,4 @@
+import useDocumentTitle from "../hooks/useDocumentTitle";
 import { useState } from "react";
 import useAuthUser from "../hooks/useAuthUser.js";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -40,6 +41,7 @@ const ProfilePreview = ({ form, focused }) => (
 );
 
 const OnBoardingPage = () => {
+  useDocumentTitle("Welcome");
   const { authUser } = useAuthUser();
   const queryClient = useQueryClient();
   const [focused, setFocused] = useState(null);

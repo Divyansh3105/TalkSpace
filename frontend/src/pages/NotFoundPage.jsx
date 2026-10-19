@@ -1,9 +1,14 @@
+import useDocumentTitle from "../hooks/useDocumentTitle";
 import { Link } from "react-router";
 import { HomeIcon } from "lucide-react";
+import Layout from "../components/Layout";
+import useAuthUser from "../hooks/useAuthUser";
 
 const NotFoundPage = () => {
-  return (
-    <div className="min-h-screen flex flex-col items-center justify-center text-center px-4 bg-base-100">
+  useDocumentTitle("Page not found");
+  const { authUser } = useAuthUser();
+  const page = (
+    <div className="min-h-[70vh] flex flex-col items-center justify-center text-center px-4 bg-base-100">
       {/* Large 404 */}
       <p className="text-[8rem] sm:text-[12rem] font-extrabold leading-none text-primary/20 select-none">
         404
@@ -24,6 +29,7 @@ const NotFoundPage = () => {
       </Link>
     </div>
   );
+  return authUser ? <Layout showSidebar>{page}</Layout> : page;
 };
 
 export default NotFoundPage;

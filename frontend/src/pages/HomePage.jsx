@@ -1,3 +1,4 @@
+import useDocumentTitle from "../hooks/useDocumentTitle";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import {
@@ -24,6 +25,7 @@ import toast from "react-hot-toast";
 import Avatar from "../components/Avatar";
 
 const HomePage = () => {
+  useDocumentTitle("Home");
   const queryClient = useQueryClient();
   const { authUser } = useAuthUser();
   const [searchQuery, setSearchQuery] = useState("");

@@ -1,3 +1,4 @@
+import useDocumentTitle from "../hooks/useDocumentTitle";
 import { useEffect, useState } from "react";
 import { Link, Navigate, useParams } from "react-router";
 import useAuthUser from "../hooks/useAuthUser";
@@ -22,6 +23,7 @@ import PageLoader from "../components/PageLoader";
 const STREAM_API_KEY = import.meta.env.VITE_STREAM_API_KEY;
 
 const CallPage = () => {
+  useDocumentTitle("Video call");
   const { id: callId } = useParams();
   const [client, setClient] = useState(null);
   const [call, setCall] = useState(null);
@@ -76,7 +78,7 @@ const CallPage = () => {
   if (isLoading || isConnecting) return <PageLoader />;
 
   return (
-    <div className="h-screen flex flex-col items-center justify-center bg-base-100">
+    <div className="h-dvh flex flex-col items-center justify-center bg-base-100">
       {client && call ? (
         <div className="relative w-full max-w-6xl">
           <StreamVideo client={client}>

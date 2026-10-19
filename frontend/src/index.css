@@ -5,6 +5,7 @@
 @layer base {
   body {
     font-family: 'Outfit', sans-serif;
+    overflow-x: hidden;
   }
 
   /* Browser surfaces follow the active DaisyUI theme */

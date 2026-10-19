@@ -1,3 +1,4 @@
+import useDocumentTitle from "../hooks/useDocumentTitle";
 import { useState } from "react";
 import { Link } from "react-router";
 import useSignup from "../hooks/useSignup.js";
@@ -5,6 +6,7 @@ import AuthStage from "../components/AuthStage";
 import PasswordInput from "../components/PasswordInput";
 
 const SignUpPage = () => {
+  useDocumentTitle("Sign up");
   const [signupData, setSignupData] = useState({
     fullName: "",
     email: "",

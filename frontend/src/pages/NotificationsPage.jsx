@@ -1,3 +1,4 @@
+import useDocumentTitle from "../hooks/useDocumentTitle";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   acceptFriendRequest,
@@ -24,6 +25,7 @@ const Section = ({ title, count, children }) => (
 );
 
 const NotificationsPage = () => {
+  useDocumentTitle("Notifications");
   const queryClient = useQueryClient();
 
   const { data: friendRequests, isLoading } = useQuery({
