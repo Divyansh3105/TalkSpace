@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
 import useAuthUser from "../hooks/useAuthUser";
 import { useQuery } from "@tanstack/react-query";
-import { getStreamToken } from "../lib/api";
+import { getStreamToken, openChatChannel } from "../lib/api";
 
 import {
   Channel,
@@ -97,11 +97,9 @@ const ChatPage = () => {
           tokenData.token,
         );
 
-        const channelId = [authUser._id, targetUserId].sort().join("-");
-
-        const currChannel = clientInstance.channel("messaging", channelId, {
-          members: [authUser._id, targetUserId],
-        });
+        // Only the server creates the channel, and only between friends
+        const { channelId } = await openChatChannel(targetUserId);
+        const currChannel = clientInstance.channel("messaging", channelId);
 
         await currChannel.watch();
 
@@ -109,7 +107,8 @@ const ChatPage = () => {
         setChannel(currChannel);
       } catch (error) {
         console.error("Error initializing chat:", error);
-        toast.error("Could not connect to chat. Please try again.");
+        // e.g. 403 "You can only chat with friends"
+        toast.error(error.response?.data?.message ?? "Could not connect to chat. Please try again.");
       } finally {
         setLoading(false);
       }

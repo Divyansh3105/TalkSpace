@@ -1,6 +1,6 @@
 import FriendRequest from "../Models/FriendRequest.js";
 import User from "../Models/User.js";
-import { upsertStreamUser } from "../lib/stream.js";
+import { closeDirectChannel, upsertStreamUser } from "../lib/stream.js";
 
 export async function getAvatar(req, res) {
   try {
@@ -316,6 +316,12 @@ export async function removeFriend(req, res) {
         ],
       }),
     ]);
+
+    // Not friends any more, so neither may post in their chat. Fails if they never chatted
+    // (no channel); the unfriend has already happened, so only log it.
+    await closeDirectChannel(myId, friendId).catch((error) =>
+      console.error("Could not close the chat channel:", error.message),
+    );
 
     res.status(200).json({ message: "Friend removed successfully" });
   } catch (error) {

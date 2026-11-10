@@ -201,6 +201,9 @@ npm run dev        # Starts on http://localhost:5173
 | Method | Endpoint | Description                     | Auth |
 | ------ | -------- | ------------------------------- | ---- |
 | `GET`  | `/token` | Generate Stream Chat user token | ✅   |
+| `POST` | `/channel/:id` | Open the 1:1 chat with a friend (403 if not friends); returns `{ channelId }` | ✅ |
+
+Only the server creates 1:1 chats, after checking the friendship, and unfriending removes both people from the chat. For this to hold, Stream must not let users create channels themselves: in the Stream dashboard, open **Chat → Roles & Permissions**, choose the `messaging` channel type and the `user` role, and turn off **Create Channel**.
 
 ---
 

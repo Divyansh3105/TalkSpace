@@ -73,6 +73,12 @@ export async function getStreamToken() {
   return response.data;
 }
 
+// The server checks the friendship and creates the channel; returns { channelId }
+export async function openChatChannel(userId) {
+  const response = await axiosInstance.post(`/chat/channel/${userId}`);
+  return response.data;
+}
+
 export async function updateUserProfile(data) {
   const response = await axiosInstance.put("/users/profile", data);
   return response.data;
