@@ -246,6 +246,58 @@ test("SVG avatars are rejected", async () => {
   assert.equal(res.status, 400);
 });
 
+// ─── Chat channels ───────────────────────────────────────────────────────────
+
+// Records what the server asks Stream to do with channels
+const streamCalls = [];
+StreamChat.getInstance().channel = (type, id, data) => ({
+  id,
+  create: async () => streamCalls.push(["create", type, id, data]),
+  addMembers: async (m) => streamCalls.push(["addMembers", id, m]),
+  removeMembers: async (m) => streamCalls.push(["removeMembers", id, m]),
+});
+
+test("a chat channel opens only between friends, and the server creates it", async () => {
+  const stranger = addUser({ email: "stranger@example.com" });
+  const friend = addUser({ email: "pal@example.com" });
+  const me = addUser({ email: "chatter@example.com", friends: [friend._id] });
+  streamCalls.length = 0;
+
+  const refused = await send("POST", `/api/chat/channel/${stranger._id}`, { cookie: cookieFor(me) });
+  assert.equal(refused.status, 403);
+  assert.equal(streamCalls.length, 0); // Stream never asked to create it
+
+  const res = await send("POST", `/api/chat/channel/${friend._id}`, { cookie: cookieFor(me) });
+  assert.equal(res.status, 200);
+  const expectedId = [me._id, friend._id].sort().join("-");
+  assert.deepEqual(await res.json(), { channelId: expectedId });
+  assert.deepEqual(streamCalls[0], [
+    "create",
+    "messaging",
+    expectedId,
+    { members: [me._id, friend._id], created_by_id: me._id },
+  ]);
+  assert.deepEqual(streamCalls[1], ["addMembers", expectedId, [me._id, friend._id]]);
+});
+
+test("opening a chat needs a login and a valid id", async () => {
+  assert.equal((await send("POST", `/api/chat/channel/${newId()}`)).status, 401);
+  const me = addUser({ email: "badid@example.com" });
+  assert.equal((await send("POST", "/api/chat/channel/not-an-id", { cookie: cookieFor(me) })).status, 400);
+});
+
+test("unfriending removes both people from their chat channel", async () => {
+  const friend = addUser({ email: "ex@example.com" });
+  const me = addUser({ email: "unfriender@example.com", friends: [friend._id] });
+  FriendRequest.deleteMany = async () => {};
+  streamCalls.length = 0;
+
+  const res = await send("DELETE", `/api/users/friends/${friend._id}`, { cookie: cookieFor(me) });
+  assert.equal(res.status, 200);
+  const id = [me._id, friend._id].sort().join("-");
+  assert.deepEqual(streamCalls, [["removeMembers", id, [me._id, friend._id]]]);
+});
+
 // ─── Rate limiting (last: it uses up the login quota) ────────────────────────
 
 test("login is rate limited but /me is not", async () => {

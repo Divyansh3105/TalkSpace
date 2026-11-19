@@ -16,3 +16,21 @@ export const upsertStreamUser = async (userData) => {
 };
 
 export const generateStreamToken = (userId) => streamClient.createToken(userId.toString());
+
+// One "messaging" channel per pair, same id whoever opens it
+const directChannel = (a, b, data) =>
+  streamClient.channel("messaging", [String(a), String(b)].sort().join("-"), data);
+
+// Only the server creates 1:1 channels, after checking the two are friends.
+// addMembers re-adds a pair who unfriended and became friends again.
+export const openDirectChannel = async (me, other) => {
+  const channel = directChannel(me, other, { members: [String(me), String(other)], created_by_id: String(me) });
+  await channel.create();
+  await channel.addMembers([String(me), String(other)]);
+  return channel.id;
+};
+
+// Unfriending takes both out of their channel, so the history stays but neither can post
+export const closeDirectChannel = async (a, b) => {
+  await directChannel(a, b).removeMembers([String(a), String(b)]);
+};
